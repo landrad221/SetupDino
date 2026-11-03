@@ -1,0 +1,1 @@
+<?php $pageTitle='Register';require __DIR__.'/includes/header.php'; ?><section class="section"><div class="container"><h1>Register</h1><p class="muted">Registration will be implemented in a later step.</p></div></section><?php require __DIR__.'/includes/footer.php';

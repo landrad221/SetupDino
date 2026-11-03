@@ -1,0 +1,1 @@
+<?php $pageTitle='Cart';require __DIR__.'/includes/header.php'; ?><section class="section"><div class="container"><h1>Shopping Cart</h1><p class="muted">The shopping cart will be implemented in Milestone 2, Step 2.</p><a class="btn btn-primary" href="/products.php">Browse Products</a></div></section><?php require __DIR__.'/includes/footer.php';

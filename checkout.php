@@ -1,0 +1,1 @@
+<?php $pageTitle='Checkout';require __DIR__.'/includes/header.php'; ?><section class="section"><div class="container"><h1>Checkout</h1><p class="muted">Checkout is not yet available. No real payments will be collected.</p><a href="/products.php">Back to catalog</a></div></section><?php require __DIR__.'/includes/footer.php';

@@ -1,0 +1,1 @@
+<?php $pageTitle='Login';require __DIR__.'/includes/header.php'; ?><section class="section"><div class="container"><h1>Login</h1><p class="muted">Customer and admin login will be implemented in a later step. This page does not accept credentials yet.</p></div></section><?php require __DIR__.'/includes/footer.php';
