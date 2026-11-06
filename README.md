@@ -1,147 +1,85 @@
-<div align="center">
+# GamerSell 🎮
 
-# 🎮 GamerSell
+Cyberpunk-themed gaming ecommerce class project using **HTML5, CSS3, vanilla JavaScript, PHP and MySQL**.
 
-### Eleve o nível do seu setup.
+## Status
 
-**Loja virtual de periféricos, acessórios e produtos para gamers.**
+**Milestone 2, Step 1 foundation.** Homepage, catalog and product details render real MySQL data. Cart, checkout, customer authentication, admin CRUD, and payment integration are **not implemented yet**. Admin pages correctly return HTTP 403 until authentication is added. Product art currently uses placeholders.
 
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)](https://developer.mozilla.org/pt-BR/docs/Web/HTML)
-[![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css&logoColor=white)](https://developer.mozilla.org/pt-BR/docs/Web/CSS)
-[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript)
-[![PHP](https://img.shields.io/badge/PHP-777BB4?logo=php&logoColor=white)](https://www.php.net/)
-[![MySQL opcional](https://img.shields.io/badge/MySQL-Opcional-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
+## Requirements
 
-[Repositório](https://github.com/landrad221/gamersells) · [Issues](https://github.com/landrad221/gamersells/issues)
+- PHP 8.1+ with `pdo_mysql`
+- MySQL 8+ (or compatible MariaDB)
+- MySQL command line client
 
-</div>
+## Install
 
-## 📖 Sobre o projeto
+1. Import database tables and sample products (requires a MySQL account with CREATE permissions):
 
-A **GamerSell** é um projeto de loja virtual voltada à venda de periféricos e produtos relacionados ao universo gamer. Seu objetivo é oferecer uma experiência de compra simples, intuitiva e responsiva para quem deseja montar ou melhorar seu setup.
+   ```bash
+   mysql -u root -p < database/schema.sql
+   mysql -u root -p < database/seed.sql
+   ```
 
-O projeto utiliza uma stack web enxuta: **HTML5, CSS3, JavaScript puro e PHP**, com possibilidade de integração ao **MySQL** para armazenamento de dados.
+2. Create a limited-permission application account in MySQL, replacing the sample password with a strong one:
 
-> **Status:** projeto em fase inicial. Os recursos descritos a seguir são funcionalidades planejadas, não necessariamente já implementadas.
+   ```sql
+   CREATE USER IF NOT EXISTS 'gamersells_app'@'localhost' IDENTIFIED BY 'REPLACE_WITH_STRONG_PASSWORD';
+   GRANT SELECT, INSERT, UPDATE, DELETE ON gamersells.* TO 'gamersells_app'@'localhost';
+   ```
 
-## 🛍️ Categorias de produtos
+3. Export the application password and run the local development server from the project root:
 
-- **Teclados:** modelos mecânicos, keycaps e acessórios.
-- **Mouses:** mouses gamers, mousepads e acessórios.
-- **Áudio:** headsets, microfones e caixas de som.
-- **Monitores:** telas gamers e acessórios relacionados.
-- **Controles:** gamepads e outros dispositivos de entrada.
-- **Acessórios para setup:** iluminação RGB, suportes e organizadores.
-- **Outros produtos gamers:** itens complementares para computadores e consoles.
+   ```bash
+   read -rsp 'Database password: ' DB_PASSWORD; echo
+   export DB_PASSWORD
+   php -S localhost:8000
+   ```
 
-## ✨ Funcionalidades planejadas
+4. Open `http://localhost:8000`. Visit `/products.php` and click a product to view details. Visit `/admin/` to confirm access is denied.
 
-- [ ] Página inicial responsiva com produtos em destaque.
-- [ ] Catálogo de produtos organizado por categorias.
-- [ ] Páginas de produtos com imagens, descrições e preços.
-- [ ] Busca, filtros e ordenação de produtos.
-- [ ] Carrinho de compras com cálculo de quantidades e subtotais.
-- [ ] Finalização de compra e resumo do pedido.
-- [ ] Cadastro e autenticação de clientes.
-- [ ] Backend em PHP para gerenciamento de produtos e pedidos.
-- [ ] Integração opcional com MySQL para persistência de dados.
-- [ ] Painel administrativo para gerenciamento de estoque.
+Other optional environment variables: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`. PHP does not automatically load `.env` files in this project.
 
-## 🧰 Tecnologias utilizadas e permitidas
+## Architecture
 
-| Tecnologia | Finalidade | Situação |
-| --- | --- | --- |
-| HTML5 | Estrutura semântica das páginas | Permitida |
-| CSS3 | Estilização, animações e responsividade | Permitida |
-| JavaScript (puro) | Interações e funcionalidades no navegador | Permitida |
-| PHP | Lógica no servidor, validações e endpoints | Permitida |
-| MySQL | Armazenamento persistente de dados | Opcional |
+- `admin/`: protected administration pages (future CRUD)
+- `assets/`: cyberpunk styles, JS placeholders and future product images
+- `config/database.php`: PDO connection using environment variables
+- `database/`: schema and repeatable seed data
+- `includes/`: layout, escaping, sessions and access control
+- `src/`: product repository and future cart/order services
+- Root PHP files: customer-facing pages
 
-A proposta é desenvolver a aplicação sem depender de frameworks de frontend ou de outras linguagens de backend.
+## Security and limitations
 
-## 🗂️ Estrutura de diretórios sugerida
+This is a local classroom starter, **not production-ready**. PHP's built-in server can expose source or configuration files under the project root: bind to localhost only. Before public deployment, use a dedicated web root and keep configuration, SQL, and source files outside it. Passwords are never hardcoded. Admin routes check PHP sessions, but login and user management are not yet implemented. No real payment processing exists.
 
-```text
-gamersells/
-├── index.php               # Página inicial da loja
-├── assets/
-│   ├── css/
-│   │   └── style.css
-│   ├── js/
-│   │   └── app.js
-│   └── images/
-├── includes/               # Componentes PHP compartilhados
-├── pages/                  # Catálogo, carrinho e finalização de compra
-├── api/                    # Endpoints PHP, se necessários
-├── config/                 # Configurações sem credenciais versionadas
-├── database/               # Esquemas e migrações opcionais
-└── README.md
-```
+## Next steps
 
-*Essa organização é apenas uma sugestão para o desenvolvimento e não representa necessariamente a estrutura atual do repositório.*
+Build product search and filters, cart, login/registration, checkout simulation, admin product CRUD, and order management.
 
-## 🚀 Como começar
 
-Clone o repositório e acesse a pasta do projeto:
+## Milestone 2 — Step 2: Storefront
 
-```bash
-git clone https://github.com/landrad221/gamersells.git
-cd gamersells
-```
+Implemented: responsive navigation, homepage category links, reusable product cards, catalog search/category/price sorting via GET, and product details with image fallback and stock display.
 
-Para páginas estáticas feitas com HTML, CSS e JavaScript, é possível utilizar um navegador. Quando houver páginas em PHP, instale o PHP e inicie o servidor de desenvolvimento na raiz do projeto:
+- `/` — homepage and featured products
+- `/products.php` — searchable/filterable catalog
+- `/products.php?search=keyboard&category=keyboards&sort=price_asc` — example filter URL
+- `/product.php?id=1` — product details
 
-```bash
-php -S localhost:8000
-```
+No schema migration is required from Step 1. Product image filenames come from `products.image`; add matching files to `assets/images/products/` or a gaming placeholder appears.
 
-Acesse **http://localhost:8000** no navegador.
+**Important:** Cart, checkout, login, and admin CRUD are still placeholders for later steps. Run locally only: the PHP built-in server exposes the project root, including internal files, and must not be deployed publicly.
 
-> O servidor embutido do PHP é indicado para desenvolvimento local, não para produção. A execução da loja dependerá da implementação dos arquivos da aplicação.
 
-### Integração opcional com MySQL
+## Milestone 2 Step 3 — Cart, accounts and demo orders
 
-Caso seja necessário armazenar produtos, clientes e pedidos:
+- `assets/js/cart.js` stores cart items in `localStorage` (browser-only; no server authority).
+- `register.php` and `login.php` implement customer accounts with password hashes and CSRF protection.
+- `checkout.php` requires login and stores a pending **demo** order. No payment is processed.
+- `src/CartService.php` validates product IDs, quantities, live stock, and prices inside a database transaction.
+- `src/OrderService.php` saves the order, item snapshots, delivery address and decrements stock atomically.
+- `order-success.php` shows only orders belonging to the current customer.
 
-1. Instale e configure um servidor MySQL.
-2. Crie um banco de dados e um usuário específico para a aplicação, com permissões adequadas.
-3. Mantenha credenciais em variáveis de ambiente ou arquivos locais não versionados.
-4. Utilize **PDO** e consultas preparadas para acessar o banco pelo PHP.
-5. Versione o esquema do banco de dados no diretório `database/`.
-
-O MySQL **não é obrigatório** para um protótipo inicial com páginas estáticas.
-
-## 🗺️ Planejamento do desenvolvimento
-
-| Etapa | Objetivo |
-| --- | --- |
-| 1 — Interface | Layout, navegação, cards de produtos e responsividade |
-| 2 — Compras | Páginas de produtos, busca, filtros e carrinho |
-| 3 — Backend | Endpoints PHP, validações e regras de negócio |
-| 4 — Persistência | Integração opcional com MySQL, contas e pedidos |
-| 5 — Finalização | Acessibilidade, segurança, testes e publicação |
-
-## 🤝 Como contribuir
-
-Contribuições, sugestões e correções são bem-vindas!
-
-1. Abra uma [issue](https://github.com/landrad221/gamersells/issues) para descrever a melhoria ou o problema.
-2. Faça um fork do repositório e crie uma branch com um nome descritivo.
-3. Implemente e teste suas alterações utilizando as tecnologias permitidas.
-4. Envie um pull request explicando as mudanças realizadas.
-
-**Importante:** não inclua senhas, chaves de API ou dados de clientes nos commits.
-
-## 📄 Licença
-
-Ainda não foi definida uma licença para o projeto. A disponibilidade pública do repositório não significa, por si só, autorização para reutilizar ou redistribuir seu código. Consulte a [documentação do GitHub sobre licenças](https://docs.github.com/pt/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository).
-
----
-
-<div align="center">
-
-**GamerSell — Eleve o nível do seu setup. 🎮**
-
-Desenvolvido com HTML5, CSS3, JavaScript e PHP.
-
-</div>
+**Important:** No database migration is required from Step 2. The existing `users`, `orders`, `order_items`, and `order_addresses` tables are used. Run the application with `DB_PASSWORD` set as in the previous milestone. Create an account, add products, and place a demo order. Admin pages remain protected and CRUD is planned for the next milestone. Do not deploy the PHP built-in server publicly; use a dedicated public document root and HTTPS for production.
