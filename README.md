@@ -1,4 +1,4 @@
-# GamerSell 🎮
+# SetupDino 🎮
 
 Cyberpunk-themed gaming ecommerce class project using **HTML5, CSS3, vanilla JavaScript, PHP and MySQL**.
 
@@ -24,8 +24,8 @@ Cyberpunk-themed gaming ecommerce class project using **HTML5, CSS3, vanilla Jav
 2. Create a limited-permission application account in MySQL, replacing the sample password with a strong one:
 
    ```sql
-   CREATE USER IF NOT EXISTS 'gamersells_app'@'localhost' IDENTIFIED BY 'REPLACE_WITH_STRONG_PASSWORD';
-   GRANT SELECT, INSERT, UPDATE, DELETE ON gamersells.* TO 'gamersells_app'@'localhost';
+   CREATE USER IF NOT EXISTS 'SetupDino_app'@'localhost' IDENTIFIED BY 'REPLACE_WITH_STRONG_PASSWORD';
+   GRANT SELECT, INSERT, UPDATE, DELETE ON SetupDino.* TO 'SetupDino_app'@'localhost';
    ```
 
 3. Export the application password and run the local development server from the project root:

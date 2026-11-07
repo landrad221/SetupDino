@@ -1,4 +1,4 @@
-USE gamersells;
+USE SetupDino;
 INSERT INTO categories(name,slug) VALUES ('Keyboards','keyboards'),('Mice','mice'),('Headsets','headsets'),('Gaming Chairs','gaming-chairs'),('Monitors','monitors'),('Accessories','accessories') ON DUPLICATE KEY UPDATE name=VALUES(name);
 INSERT INTO products(category_id,name,slug,description,price,stock,image,featured) VALUES
 ((SELECT id FROM categories WHERE slug='keyboards'),'RGB Mechanical Keyboard','rgb-mechanical-keyboard','Mechanical gaming keyboard with RGB lighting.',249.90,15,'keyboard.jpg',TRUE),
