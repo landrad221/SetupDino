@@ -4,7 +4,7 @@ Cyberpunk-themed gaming ecommerce class project using **HTML5, CSS3, vanilla Jav
 
 ## Status
 
-**Milestone 2, Step 1 foundation.** Homepage, catalog and product details render real MySQL data. Cart, checkout, customer authentication, admin CRUD, and payment integration are **not implemented yet**. Admin pages correctly return HTTP 403 until authentication is added. Product art currently uses placeholders.
+The store includes a product catalog, customer accounts and demo checkout, plus separate admin and seller panels. Admins can manage products, categories, accounts and order statuses. Sellers can create and manage only their own listings; seller products appear in the catalog immediately.
 
 ## Requirements
 
@@ -14,7 +14,7 @@ Cyberpunk-themed gaming ecommerce class project using **HTML5, CSS3, vanilla Jav
 
 ## Install
 
-1. Import database tables and sample products (requires a MySQL account with CREATE permissions):
+1. For a fresh install, import the database tables and sample products (requires a MySQL account with CREATE permissions):
 
    ```bash
    mysql -u root -p < database/schema.sql
@@ -28,35 +28,53 @@ Cyberpunk-themed gaming ecommerce class project using **HTML5, CSS3, vanilla Jav
    GRANT SELECT, INSERT, UPDATE, DELETE ON SetupDino.* TO 'SetupDino_app'@'localhost';
    ```
 
-3. Export the application password and run the local development server from the project root:
+3. Copy `.env.example` to `.env`, set `DB_PASSWORD` to the application account password, and run the local development server from the project root:
 
    ```bash
-   read -rsp 'Database password: ' DB_PASSWORD; echo
-   export DB_PASSWORD
+   cp .env.example .env
    php -S localhost:8000
    ```
 
-4. Open `http://localhost:8000`. Visit `/products.php` and click a product to view details. Visit `/admin/` to confirm access is denied.
+4. Create an account through `/register.php`, then promote that account to the first administrator using MySQL:
 
-Other optional environment variables: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`. PHP does not automatically load `.env` files in this project.
+   ```sql
+   UPDATE users SET role = 'admin' WHERE email = 'your-admin-email@example.com';
+   ```
+
+   Sign in again to refresh the account role. Administrators can promote registered customer accounts to sellers from **Administration → Clientes e vendedores**.
+
+5. Open `http://localhost:8000`. Admins use `/admin/`; sellers use `/seller/`.
+
+### Existing database upgrade
+
+If the database was created before seller panels were added, run this migration once after backing up the database:
+
+```bash
+mysql -u root -p < database/migrations/001_seller_products.sql
+```
+
+Fresh databases created with the current `database/schema.sql` already include seller support and should not run this migration.
+
+The application loads `.env` through `config/database.php`. Optional settings include `DB_HOST`, `DB_PORT`, `DB_NAME`, and `DB_USER`. Keep `.env` private and do not commit real credentials.
 
 ## Architecture
 
-- `admin/`: protected administration pages (future CRUD)
+- `admin/`: protected product, category, order, and account management
+- `seller/`: seller dashboard and owner-scoped product management
 - `assets/`: cyberpunk styles, JS placeholders and future product images
 - `config/database.php`: PDO connection using environment variables
 - `database/`: schema and repeatable seed data
 - `includes/`: layout, escaping, sessions and access control
-- `src/`: product repository and future cart/order services
+- `src/`: product repository and cart/order services
 - Root PHP files: customer-facing pages
 
 ## Security and limitations
 
-This is a local classroom starter, **not production-ready**. PHP's built-in server can expose source or configuration files under the project root: bind to localhost only. Before public deployment, use a dedicated web root and keep configuration, SQL, and source files outside it. Passwords are never hardcoded. Admin routes check PHP sessions, but login and user management are not yet implemented. No real payment processing exists.
+This is a local classroom starter, **not production-ready**. PHP's built-in server can expose source or configuration files under the project root: bind to localhost only. Before public deployment, use a dedicated web root and keep configuration, SQL, and source files outside it. Passwords are never hardcoded. Product photo uploads are restricted by file type and size; production deployments should additionally configure upload limits and storage policies. Checkout is demonstrative and no real payment processing exists.
 
 ## Next steps
 
-Build product search and filters, cart, login/registration, checkout simulation, admin product CRUD, and order management.
+Configure production hosting, backups, payment processing, and moderation/business rules before deploying a live marketplace.
 
 
 ## Milestone 2 — Step 2: Storefront
@@ -70,7 +88,7 @@ Implemented: responsive navigation, homepage category links, reusable product ca
 
 No schema migration is required from Step 1. Product image filenames come from `products.image`; add matching files to `assets/images/products/` or a gaming placeholder appears.
 
-**Important:** Cart, checkout, login, and admin CRUD are still placeholders for later steps. Run locally only: the PHP built-in server exposes the project root, including internal files, and must not be deployed publicly.
+Run locally only: the PHP built-in server exposes the project root, including internal files, and must not be deployed publicly.
 
 
 ## Milestone 2 Step 3 — Cart, accounts and demo orders
@@ -82,4 +100,13 @@ No schema migration is required from Step 1. Product image filenames come from `
 - `src/OrderService.php` saves the order, item snapshots, delivery address and decrements stock atomically.
 - `order-success.php` shows only orders belonging to the current customer.
 
-**Important:** No database migration is required from Step 2. The existing `users`, `orders`, `order_items`, and `order_addresses` tables are used. Run the application with `DB_PASSWORD` set as in the previous milestone. Create an account, add products, and place a demo order. Admin pages remain protected and CRUD is planned for the next milestone. Do not deploy the PHP built-in server publicly; use a dedicated public document root and HTTPS for production.
+**Important:** The existing `users`, `orders`, `order_items`, and `order_addresses` tables are used. Run the application with `DB_PASSWORD` set in `.env`. Create an account, add products, and place a demo order. Do not deploy the PHP built-in server publicly; use a dedicated public document root and HTTPS for production.
+
+## Admin and seller panels
+
+- Admin panel: `/admin/` — manage all products, categories, customer/seller roles, and order statuses.
+- Seller panel: `/seller/` — add, edit, and remove products belonging to the signed-in seller.
+- To onboard a seller, have them create a regular customer account, then assign the seller role from the admin account page.
+- Seller listings are published immediately. Product images accept JPG, PNG, WebP, or GIF files up to 5 MB.
+- Existing databases must run `database/migrations/001_seller_products.sql` once. New databases already include the required schema.
+- On the first installation, promote a registered account to `admin` with the SQL statement above.

@@ -7,5 +7,7 @@
 *.log
 *.tmp
 /uploads/
+/assets/images/products/*
+!/assets/images/products/README.md
 .DS_Store
 Thumbs.db

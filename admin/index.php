@@ -1,4 +1,39 @@
 <?php
-declare(strict_types=1);require_once __DIR__.'/../includes/auth.php';requireAdmin();
-$pageTitle='Admin Dashboard';require __DIR__.'/../includes/header.php';
-?><link rel="stylesheet" href="/assets/css/admin.css"><div class="admin-layout"><aside class="admin-sidebar"><h2>Admin Panel</h2><a href="/admin/">Dashboard</a><a href="/admin/products.php">Products</a><a href="/admin/categories.php">Categories</a><a href="/admin/orders.php">Orders</a><a href="/admin/customers.php">Customers</a></aside><section class="admin-content"><h1>SetupDino Dashboard</h1><p>Welcome to the administration panel. Metrics and CRUD will be implemented later.</p></section></div><?php require __DIR__.'/../includes/footer.php';
+declare(strict_types=1);
+require_once __DIR__ . '/../includes/auth.php';
+requireAdmin();
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/functions.php';
+
+$db = getDatabaseConnection();
+$counts = [
+    'products' => (int)$db->query('SELECT COUNT(*) FROM products')->fetchColumn(),
+    'orders' => (int)$db->query('SELECT COUNT(*) FROM orders')->fetchColumn(),
+    'sellers' => (int)$db->query("SELECT COUNT(*) FROM users WHERE role = 'seller'")->fetchColumn(),
+    'customers' => (int)$db->query("SELECT COUNT(*) FROM users WHERE role = 'customer'")->fetchColumn(),
+];
+$pageTitle = 'Administração';
+require __DIR__ . '/../includes/header.php';
+?>
+<section class="section">
+    <div class="container">
+        <div class="admin-layout">
+            <?php $managementIsAdmin = true; require __DIR__ . '/../includes/management-sidebar.php'; ?>
+            <section class="admin-content">
+                <span class="eyebrow">Painel administrativo</span>
+                <h1>Visão geral</h1>
+                <p class="muted">Gerencie o catálogo, vendedores, clientes e pedidos da SetupDino.</p>
+                <div class="metric-grid">
+                    <?php foreach (['products' => 'Produtos', 'orders' => 'Pedidos', 'sellers' => 'Vendedores', 'customers' => 'Clientes'] as $key => $label): ?>
+                        <article class="metric-card"><span><?= escape($label) ?></span><strong><?= $counts[$key] ?></strong></article>
+                    <?php endforeach; ?>
+                </div>
+                <div class="form-actions">
+                    <a class="btn btn-primary" href="/admin/product-form.php">Adicionar produto</a>
+                    <a class="btn btn-outline" href="/admin/customers.php">Gerenciar vendedores</a>
+                </div>
+            </section>
+        </div>
+    </div>
+</section>
+<?php require __DIR__ . '/../includes/footer.php'; ?>

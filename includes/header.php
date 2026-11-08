@@ -14,5 +14,5 @@ $pageTitle = $pageTitle ?? 'SetupDino';
 <button class="menu-toggle" type="button" aria-label="Abrir ou fechar navegação" aria-expanded="false" aria-controls="main-nav" data-menu-toggle>☰</button>
 <div class="nav-links" id="main-nav" data-menu><a href="/">Início</a><a href="/products.php">Produtos</a><a href="/cart.php">Carrinho (<span data-cart-count>0</span>)</a>
 <?php if (isLoggedIn()): ?><a href="/logout.php">Sair</a><?php else: ?><a href="/login.php">Entrar</a><a href="/register.php">Criar conta</a><?php endif; ?>
-<?php if (isAdmin()): ?><a href="/admin/">Administração</a><?php endif; ?></div>
+<?php if (isAdmin()): ?><a href="/admin/">Administração</a><?php elseif (isSeller()): ?><a href="/seller/">Painel do vendedor</a><?php endif; ?></div>
 </nav></header><main>
