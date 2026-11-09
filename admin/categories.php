@@ -5,11 +5,7 @@ requireAdmin();
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-<<<<<<< HEAD
-$db = getDatabaseConnection();
-=======
 $db = getStorage();
->>>>>>> master
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf($_POST['csrf'] ?? null);
@@ -21,12 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Categoria inválida.';
         } else {
             try {
-<<<<<<< HEAD
-                $stmt = $db->prepare('DELETE FROM categories WHERE id = ?');
-                $stmt->execute([$id]);
-=======
                 $db->deleteCategory($id);
->>>>>>> master
                 header('Location: /admin/categories.php?saved=deleted');
                 exit;
             } catch (PDOException $e) {
@@ -41,23 +32,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             try {
                 if ($action === 'add') {
-<<<<<<< HEAD
-                    $stmt = $db->prepare('INSERT INTO categories (name, slug) VALUES (?, ?)');
-                    $stmt->execute([$name, $slug]);
-=======
                     $db->createCategory($name, $slug);
->>>>>>> master
                 } else {
                     $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
                     if ($id === false || $id < 1) {
                         throw new InvalidArgumentException('Categoria inválida.');
                     }
-<<<<<<< HEAD
-                    $stmt = $db->prepare('UPDATE categories SET name = ?, slug = ? WHERE id = ?');
-                    $stmt->execute([$name, $slug, $id]);
-=======
                     $db->updateCategory($id, $name, $slug);
->>>>>>> master
                 }
                 header('Location: /admin/categories.php?saved=1');
                 exit;
@@ -72,15 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Informe um nome de categoria com até 100 caracteres.';
     }
 }
-<<<<<<< HEAD
-$categories = $db->query(
-    'SELECT c.id, c.name, c.slug, COUNT(p.id) AS product_count
-     FROM categories c LEFT JOIN products p ON p.category_id = c.id
-     GROUP BY c.id, c.name, c.slug ORDER BY c.name'
-)->fetchAll();
-=======
 $categories = $db->listCategories(true);
->>>>>>> master
 $pageTitle = 'Categorias';
 require __DIR__ . '/../includes/header.php';
 ?>

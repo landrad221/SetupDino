@@ -8,11 +8,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
  if(!preg_match('/^[A-Za-z]{2}$/',$address['state']))$error='Informe a sigla válida do estado com duas letras.';
  $raw=json_decode((string)($_POST['cart_json']??''),true);
  if(!is_array($raw))$error='Carrinho inválido. Atualize a página e tente novamente.';
-<<<<<<< HEAD
- if(!$error){try{$orderId=(new OrderService(getDatabaseConnection()))->create((int)$_SESSION['user_id'],$raw,$address);header('Location: /order-success.php?id='.$orderId.'&ordered=1');exit;}catch(InvalidArgumentException $e){$error=$e->getMessage();}catch(Throwable $e){error_log($e->getMessage());$error='Não foi possível concluir o pedido. Tente novamente.';}}
-=======
  if(!$error){try{$orderId=(new OrderService(getStorage()))->create((int)$_SESSION['user_id'],$raw,$address);header('Location: /order-success.php?id='.$orderId.'&ordered=1');exit;}catch(InvalidArgumentException $e){$error=$e->getMessage();}catch(Throwable $e){error_log($e->getMessage());$error='Não foi possível concluir o pedido. Tente novamente.';}}
->>>>>>> master
 }
 $pageTitle='Finalizar pedido';require __DIR__.'/includes/header.php';?>
 <section class="section"><div class="container narrow"><h1>Finalizar pedido</h1><p class="muted">Esta é uma finalização demonstrativa: nenhum pagamento real será cobrado e o pedido será salvo como pendente.</p><?php if($error):?><p class="form-error"><?=escape($error)?></p><?php endif;?>

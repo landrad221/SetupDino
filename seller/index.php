@@ -5,19 +5,9 @@ requireSeller();
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-<<<<<<< HEAD
-$db = getDatabaseConnection();
-$count = $db->prepare('SELECT COUNT(*) FROM products WHERE seller_id = ?');
-$count->execute([(int)$_SESSION['user_id']]);
-$productCount = (int)$count->fetchColumn();
-$stock = $db->prepare('SELECT COALESCE(SUM(stock), 0) FROM products WHERE seller_id = ?');
-$stock->execute([(int)$_SESSION['user_id']]);
-$stockCount = (int)$stock->fetchColumn();
-=======
 $summary = getStorage()->getSellerSummary((int)$_SESSION['user_id']);
 $productCount = $summary['product_count'];
 $stockCount = $summary['stock_count'];
->>>>>>> master
 $pageTitle = 'Painel do vendedor';
 require __DIR__ . '/../includes/header.php';
 ?>

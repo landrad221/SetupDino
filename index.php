@@ -5,11 +5,7 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/src/ProductRepository.php';
 require_once __DIR__ . '/includes/functions.php';
 try {
-<<<<<<< HEAD
-    $repo = new ProductRepository(getDatabaseConnection());
-=======
     $repo = new ProductRepository(getStorage());
->>>>>>> master
     $products = $repo->getFeaturedProducts();
     $categories = $repo->getCategories();
 } catch (Throwable $e) { error_log($e->getMessage()); renderErrorPage(); }

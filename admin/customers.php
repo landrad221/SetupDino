@@ -5,11 +5,7 @@ requireAdmin();
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-<<<<<<< HEAD
-$db = getDatabaseConnection();
-=======
 $db = getStorage();
->>>>>>> master
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf($_POST['csrf'] ?? null);
@@ -18,21 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($id === false || $id < 1 || !in_array($role, ['customer', 'seller'], true)) {
         $error = 'Selecione uma conta e um tipo de acesso válidos.';
     } else {
-<<<<<<< HEAD
-        $update = $db->prepare("UPDATE users SET role = ? WHERE id = ? AND role <> 'admin'");
-        $update->execute([$role, $id]);
-=======
         $db->updateUserRole($id, $role);
->>>>>>> master
         header('Location: /admin/customers.php?saved=1');
         exit;
     }
 }
-<<<<<<< HEAD
-$users = $db->query('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC')->fetchAll();
-=======
 $users = $db->listUsers();
->>>>>>> master
 $pageTitle = 'Clientes e vendedores';
 require __DIR__ . '/../includes/header.php';
 ?>

@@ -48,11 +48,7 @@ O script [scripts/setup-xampp.ps1](scripts/setup-xampp.ps1) instala o projeto em
    Para uma porta MySQL diferente de 3306, acrescente, por exemplo, `-MySqlPort 3307`.
 
 4. Informe a senha do MySQL `root` (pode ficar vazia se a conta local não tiver senha) e os dados da conta administradora.
-<<<<<<< HEAD
-5. Inicie o Apache e acesse `http://localhost/SetupDino/`.
-=======
 5. Inicie o Apache e acesse o endereço informado pelo script: `http://localhost/` se o projeto já estiver diretamente em `htdocs`, ou `http://localhost/SetupDino/` se ele for copiado para lá.
->>>>>>> master
 
 O script verifica os requisitos do PHP e a conexão ao banco. Em um banco novo, cria o esquema, importa dados de exemplo e configura a conta de banco da aplicação. Em um banco existente, não reimporta os dados de exemplo e pede confirmação antes de aplicar a migração de vendedores. Se houver uma instalação anterior no `htdocs`, o script pede confirmação e faz backup do `.env` antes de substituí-lo.
 
@@ -86,11 +82,8 @@ DB_USER=SetupDino_app
 DB_PASSWORD=SUBSTITUA_PELA_SENHA_DO_USUARIO_MYSQL
 ```
 
-<<<<<<< HEAD
-=======
 Para uma demonstração local sem MySQL, altere `STORAGE_DRIVER=csv` no `.env`. Os arquivos CSV são criados fora da pasta pública do Apache por padrão, em `setupdino-csv` ao lado de `htdocs`; `CSV_STORAGE_PATH` pode apontar para outro diretório. Esse modo usa um conjunto de dados separado e não migra registros existentes do MySQL. A primeira conta cadastrada recebe acesso de administrador. Os CSVs contêm dados de contas e pedidos, portanto mantenha esse modo apenas em ambiente local/de demonstração e faça cópias de segurança dos arquivos.
 
->>>>>>> master
 Instale as dependências, se necessário, e inicie o servidor local:
 
 ```bash

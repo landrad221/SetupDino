@@ -5,11 +5,7 @@ requireAdmin();
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-<<<<<<< HEAD
-$db = getDatabaseConnection();
-=======
 $db = getStorage();
->>>>>>> master
 $statuses = ['pending', 'paid', 'shipped', 'delivered', 'cancelled'];
 $labels = ['pending' => 'Pendente', 'paid' => 'Pago', 'shipped' => 'Enviado', 'delivered' => 'Entregue', 'cancelled' => 'Cancelado'];
 $error = '';
@@ -20,26 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($id === false || $id < 1 || !in_array($status, $statuses, true)) {
         $error = 'Selecione um pedido e status válidos.';
     } else {
-<<<<<<< HEAD
-        $update = $db->prepare('UPDATE orders SET status = ? WHERE id = ?');
-        $update->execute([$status, $id]);
-=======
         $db->updateOrderStatus($id, $status);
->>>>>>> master
         header('Location: /admin/orders.php?saved=1');
         exit;
     }
 }
-<<<<<<< HEAD
-$orders = $db->query(
-    'SELECT o.id, o.total, o.status, o.created_at, u.name AS customer_name, u.email AS customer_email,
-     COUNT(oi.id) AS item_count FROM orders o JOIN users u ON u.id = o.user_id
-     LEFT JOIN order_items oi ON oi.order_id = o.id
-     GROUP BY o.id, u.name, u.email ORDER BY o.created_at DESC'
-)->fetchAll();
-=======
 $orders = $db->listAdminOrders();
->>>>>>> master
 $pageTitle = 'Pedidos';
 require __DIR__ . '/../includes/header.php';
 ?>

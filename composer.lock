@@ -472,12 +472,8 @@
                     "type": "tidelift"
                 }
             ],
-<<<<<<< HEAD
-            "time": "2026-10-25T16:26:19+00:00"
-=======
             "time": "2026-10-25T16:26:19+00:00",
             "published-time": "2026-10-25T16:26:50+00:00"
->>>>>>> master
         }
     ],
     "packages-dev": [],
@@ -488,9 +484,5 @@
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
-<<<<<<< HEAD
-    "plugin-api-version": "2.9.0"
-=======
     "plugin-api-version": "2.11.0"
->>>>>>> master
 }
