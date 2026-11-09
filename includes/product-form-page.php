@@ -4,7 +4,11 @@ require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/product-management.php';
 
+<<<<<<< HEAD
 $db = getDatabaseConnection();
+=======
+$db = getStorage();
+>>>>>>> master
 $productId = null;
 if (isset($_GET['id'])) {
     $validatedId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -17,6 +21,7 @@ if (isset($_GET['id'])) {
 $product = null;
 $error = '';
 if ($productId !== null) {
+<<<<<<< HEAD
     $sql = 'SELECT * FROM products WHERE id = ?';
     $params = [$productId];
     if (!$productFormAdmin) {
@@ -26,6 +31,9 @@ if ($productId !== null) {
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
     $product = $stmt->fetch();
+=======
+    $product = $db->getManagedProduct($productId, $productFormAdmin ? null : (int)$_SESSION['user_id']);
+>>>>>>> master
     if (!$product) {
         http_response_code(404);
         exit('Produto não encontrado ou sem permissão para editá-lo.');
@@ -46,7 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+<<<<<<< HEAD
 $categories = $db->query('SELECT id, name FROM categories ORDER BY name')->fetchAll();
+=======
+$categories = $db->listCategories();
+>>>>>>> master
 $value = static fn(string $key, mixed $default = ''): mixed => $_POST[$key] ?? $product[$key] ?? $default;
 $managementIsAdmin = $productFormAdmin;
 $pageTitle = $productId === null ? 'Adicionar produto' : 'Editar produto';

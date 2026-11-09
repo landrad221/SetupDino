@@ -10,9 +10,13 @@ function requireAdmin(): void { if (!isAdmin()) { http_response_code(403); exit(
 function requireSeller(): void {
     if (!isSeller()) { http_response_code(403); exit('Access denied.'); }
     require_once __DIR__ . '/../config/database.php';
+<<<<<<< HEAD
     $stmt = getDatabaseConnection()->prepare('SELECT role FROM users WHERE id = ?');
     $stmt->execute([(int)$_SESSION['user_id']]);
     if ($stmt->fetchColumn() !== 'seller') {
+=======
+    if (getStorage()->getUserRole((int)$_SESSION['user_id']) !== 'seller') {
+>>>>>>> master
         $_SESSION['role'] = 'customer';
         http_response_code(403);
         exit('Access denied.');

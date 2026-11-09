@@ -5,7 +5,11 @@ require_once __DIR__ . '/src/ProductRepository.php';
 require_once __DIR__ . '/includes/functions.php';
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$id || $id < 1) { http_response_code(404); exit('Produto não encontrado.'); }
+<<<<<<< HEAD
 try { $product = (new ProductRepository(getDatabaseConnection()))->getById($id); }
+=======
+try { $product = (new ProductRepository(getStorage()))->getById($id); }
+>>>>>>> master
 catch (Throwable $e) { error_log($e->getMessage()); renderErrorPage(); }
 if (!$product) { http_response_code(404); exit('Produto não encontrado.'); }
 $image = (string)($product['image'] ?? '');

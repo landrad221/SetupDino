@@ -58,12 +58,23 @@ O script `scripts/setup-xampp.ps1` automatiza a instalação em uma instalação
    Para uma porta MySQL diferente de 3306, use também `-MySqlPort 3307`, substituindo pelo valor configurado.
 
 5. Informe a senha do MySQL `root` (pode ficar vazia se a conta local não tiver senha) e os dados da conta administradora.
+<<<<<<< HEAD
 6. Se já existir `htdocs\SetupDino`, o script pede confirmação antes de atualizar os arquivos. Ele não sobrescreve os arquivos de dados `.env` durante a cópia e faz uma cópia de segurança do `.env` antes de criar a nova configuração.
 7. Se o banco SetupDino já existir, o script não importa novamente os dados de exemplo. Quando necessário, pede confirmação para aplicar a migração de vendedores.
 8. Inicie o Apache e acesse `http://localhost/SetupDino/`.
 
 O script verifica a versão do PHP, as extensões requeridas e a conexão ao MySQL. Composer precisa estar disponível no `PATH` quando a pasta `vendor/` não estiver presente. A aplicação deve permanecer local; não exponha o XAMPP à internet pública.
 
+=======
+6. Se o projeto já estiver diretamente em `htdocs`, o script instala no local e não tenta copiá-lo para dentro de si mesmo. Nos demais casos, ele instala em `htdocs\SetupDino`. Antes de atualizar o destino, pede confirmação; não sobrescreve `.env` durante a cópia e faz uma cópia de segurança desse arquivo antes de criar a nova configuração.
+7. Se o banco SetupDino já existir, o script não importa novamente os dados de exemplo. Quando necessário, pede confirmação para aplicar a migração de vendedores.
+8. Inicie o Apache e acesse o endereço informado pelo script: `http://localhost/` para instalação diretamente em `htdocs`, ou `http://localhost/SetupDino/` para a instalação padrão.
+
+O script verifica a versão do PHP, as extensões requeridas e a conexão ao MySQL. Composer precisa estar disponível no `PATH` quando a pasta `vendor/` não estiver presente. A aplicação deve permanecer local; não exponha o XAMPP à internet pública.
+
+Para uma demonstração local sem MySQL, configure `STORAGE_DRIVER=csv` no `.env`. O armazenamento cria arquivos CSV separados para contas, categorias, produtos e pedidos, fora da raiz pública do Apache por padrão. Esse modo usa dados separados e não importa automaticamente registros do MySQL. A primeira conta cadastrada recebe acesso de administrador. Esse modo é destinado a demonstrações locais; proteja e faça backup dos arquivos CSV, que contêm dados de contas e endereços.
+
+>>>>>>> master
 ## 4. Instalação manual
 
 ### Banco novo

@@ -6,7 +6,11 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/product-management.php';
 
+<<<<<<< HEAD
 $db = getDatabaseConnection();
+=======
+$db = getStorage();
+>>>>>>> master
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf($_POST['csrf'] ?? null);
@@ -26,11 +30,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+<<<<<<< HEAD
 $products = $db->query(
     'SELECT p.id, p.name, p.price, p.stock, p.featured, c.name AS category_name, u.name AS seller_name
      FROM products p JOIN categories c ON c.id = p.category_id
      LEFT JOIN users u ON u.id = p.seller_id ORDER BY p.id DESC'
 )->fetchAll();
+=======
+$products = $db->listAdminProducts();
+>>>>>>> master
 $pageTitle = 'Produtos';
 require __DIR__ . '/../includes/header.php';
 ?>

@@ -11,7 +11,11 @@ if (!in_array($sort, $allowedSorts, true)) $sort = 'newest';
 $search = mb_substr($search, 0, 100);
 $category = substr($category, 0, 120);
 try {
+<<<<<<< HEAD
     $repo = new ProductRepository(getDatabaseConnection());
+=======
+    $repo = new ProductRepository(getStorage());
+>>>>>>> master
     $categories = $repo->getCategories();
     $products = $repo->search($search, $category, $sort);
 } catch (Throwable $e) { error_log($e->getMessage()); renderErrorPage(); }

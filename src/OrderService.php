@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+<<<<<<< HEAD
 require_once __DIR__ . '/CartService.php';
 final class OrderService {
     public function __construct(private PDO $db) {}
@@ -21,5 +22,11 @@ final class OrderService {
             $addr->execute([$orderId,$address['recipient_name'],$address['postal_code'],$address['street'],$address['number'],$address['complement'],$address['neighborhood'],$address['city'],$address['state']]);
             $this->db->commit(); return $orderId;
         } catch (Throwable $e) { $this->db->rollBack(); throw $e; }
+=======
+final class OrderService {
+    public function __construct(private AppStorage $storage) {}
+    public function create(int $userId, array $cart, array $address): int {
+        return $this->storage->createOrder($userId, $cart, $address);
+>>>>>>> master
     }
 }

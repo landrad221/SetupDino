@@ -5,6 +5,7 @@ requireAdmin();
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
+<<<<<<< HEAD
 $db = getDatabaseConnection();
 $counts = [
     'products' => (int)$db->query('SELECT COUNT(*) FROM products')->fetchColumn(),
@@ -12,6 +13,9 @@ $counts = [
     'sellers' => (int)$db->query("SELECT COUNT(*) FROM users WHERE role = 'seller'")->fetchColumn(),
     'customers' => (int)$db->query("SELECT COUNT(*) FROM users WHERE role = 'customer'")->fetchColumn(),
 ];
+=======
+$counts = getStorage()->getAdminDashboardCounts();
+>>>>>>> master
 $pageTitle = 'Administração';
 require __DIR__ . '/../includes/header.php';
 ?>

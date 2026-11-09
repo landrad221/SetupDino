@@ -1,13 +1,18 @@
 <?php
 declare(strict_types=1);
 
+<<<<<<< HEAD
 function productSlug(PDO $db, string $name, ?int $productId): string
+=======
+function productSlug(AppStorage $storage, string $name, ?int $productId): string
+>>>>>>> master
 {
     $slug = slugify($name, 'product');
 
     $candidate = substr($slug, 0, 200);
     $suffix = 2;
     while (true) {
+<<<<<<< HEAD
         $sql = 'SELECT id FROM products WHERE slug = :slug';
         $params = ['slug' => $candidate];
         if ($productId !== null) {
@@ -17,6 +22,9 @@ function productSlug(PDO $db, string $name, ?int $productId): string
         $stmt = $db->prepare($sql . ' LIMIT 1');
         $stmt->execute($params);
         if (!$stmt->fetchColumn()) {
+=======
+        if (!$storage->productSlugExists($candidate, $productId)) {
+>>>>>>> master
             return $candidate;
         }
         $ending = '-' . $suffix++;
@@ -57,18 +65,29 @@ function receiveProductImage(array $upload): ?string
     return $filename;
 }
 
+<<<<<<< HEAD
 function removeUnusedProductImage(PDO $db, ?string $filename): void
+=======
+function removeUnusedProductImage(AppStorage $storage, ?string $filename): void
+>>>>>>> master
 {
     if ($filename === null || $filename === '') {
         return;
     }
     try {
+<<<<<<< HEAD
         $stmt = $db->prepare('SELECT 1 FROM products WHERE image = ? LIMIT 1');
         $stmt->execute([$filename]);
         if ($stmt->fetchColumn()) {
             return;
         }
     } catch (PDOException $e) {
+=======
+        if ($storage->isProductImageUsed($filename)) {
+            return;
+        }
+    } catch (Throwable $e) {
+>>>>>>> master
         error_log('Unable to verify whether a product image is still referenced: ' . $e->getMessage());
         return;
     }
@@ -78,6 +97,7 @@ function removeUnusedProductImage(PDO $db, ?string $filename): void
     }
 }
 
+<<<<<<< HEAD
 function deleteManagedProduct(PDO $db, int $productId, ?int $sellerId): void
 {
     $sql = 'SELECT image FROM products WHERE id = ?';
@@ -116,6 +136,17 @@ function saveManagedProduct(PDO $db, int $actorId, bool $isAdmin, ?int $productI
     }
     $stmt->execute();
     $existing = $productId === null ? null : $stmt->fetch();
+=======
+function deleteManagedProduct(AppStorage $storage, int $productId, ?int $sellerId): void
+{
+    $image = $storage->deleteProduct($productId, $sellerId);
+    removeUnusedProductImage($storage, $image);
+}
+
+function saveManagedProduct(AppStorage $storage, int $actorId, bool $isAdmin, ?int $productId, array $input, array $upload): void
+{
+    $existing = $productId === null ? null : $storage->getManagedProduct($productId, $isAdmin ? null : $actorId);
+>>>>>>> master
     if ($productId !== null && !$existing) {
         throw new InvalidArgumentException('O produto não foi encontrado ou não pertence a esta conta.');
     }
@@ -140,6 +171,7 @@ function saveManagedProduct(PDO $db, int $actorId, bool $isAdmin, ?int $productI
     if ($stock === false || $stock < 0 || $stock > 2147483647) {
         throw new InvalidArgumentException('Informe uma quantidade válida em estoque.');
     }
+<<<<<<< HEAD
     $category = $db->prepare('SELECT id FROM categories WHERE id = ?');
     $category->execute([$categoryId]);
     if (!$category->fetchColumn()) {
@@ -147,6 +179,20 @@ function saveManagedProduct(PDO $db, int $actorId, bool $isAdmin, ?int $productI
     }
 
     $slug = productSlug($db, $name, $productId);
+=======
+    $categoryExists = false;
+    foreach ($storage->listCategories() as $category) {
+        if ((int)$category['id'] === $categoryId) {
+            $categoryExists = true;
+            break;
+        }
+    }
+    if (!$categoryExists) {
+        throw new InvalidArgumentException('A categoria selecionada não existe.');
+    }
+
+    $slug = productSlug($storage, $name, $productId);
+>>>>>>> master
     $image = $existing['image'] ?? null;
     $removeImage = isset($input['remove_image']) && $input['remove_image'] === '1';
     $newImage = receiveProductImage($upload);
@@ -160,6 +206,7 @@ function saveManagedProduct(PDO $db, int $actorId, bool $isAdmin, ?int $productI
         : (int)($existing['featured'] ?? 0);
 
     try {
+<<<<<<< HEAD
         if ($productId === null) {
             $insert = $db->prepare(
                 'INSERT INTO products (category_id, seller_id, name, slug, description, price, stock, image, featured)
@@ -198,6 +245,18 @@ function saveManagedProduct(PDO $db, int $actorId, bool $isAdmin, ?int $productI
             }
             $update->execute($params);
         }
+=======
+        $storage->saveProduct($productId, $isAdmin ? null : $actorId, [
+            'category_id' => $categoryId,
+            'name' => $name,
+            'slug' => $slug,
+            'description' => $description,
+            'price' => $price,
+            'stock' => $stock,
+            'image' => $image,
+            'featured' => $featured,
+        ]);
+>>>>>>> master
     } catch (Throwable $e) {
         if ($newImage !== null) {
             $uploadedPath = dirname(__DIR__) . '/assets/images/products/' . $newImage;
@@ -210,6 +269,10 @@ function saveManagedProduct(PDO $db, int $actorId, bool $isAdmin, ?int $productI
 
     $oldImage = $existing['image'] ?? null;
     if ($oldImage && $oldImage !== $image) {
+<<<<<<< HEAD
         removeUnusedProductImage($db, $oldImage);
+=======
+        removeUnusedProductImage($storage, $oldImage);
+>>>>>>> master
     }
 }

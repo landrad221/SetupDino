@@ -6,7 +6,11 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/product-management.php';
 
+<<<<<<< HEAD
 $db = getDatabaseConnection();
+=======
+$db = getStorage();
+>>>>>>> master
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf($_POST['csrf'] ?? null);
@@ -26,9 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+<<<<<<< HEAD
 $stmt = $db->prepare('SELECT id, name, price, stock FROM products WHERE seller_id = ? ORDER BY id DESC');
 $stmt->execute([(int)$_SESSION['user_id']]);
 $products = $stmt->fetchAll();
+=======
+$products = $db->listSellerProducts((int)$_SESSION['user_id']);
+>>>>>>> master
 $pageTitle = 'Meus produtos';
 require __DIR__ . '/../includes/header.php';
 ?>
