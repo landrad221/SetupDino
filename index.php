@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/src/ProductRepository.php';
@@ -8,7 +7,10 @@ try {
     $repo = new ProductRepository(getStorage());
     $products = $repo->getFeaturedProducts();
     $categories = $repo->getCategories();
-} catch (Throwable $e) { error_log($e->getMessage()); renderErrorPage(); }
+} catch (Throwable $e) {
+    error_log($e->getMessage());
+    renderErrorPage();
+}
 $pageTitle = 'Acessórios e móveis gamer';
 require __DIR__ . '/includes/header.php';
 ?>

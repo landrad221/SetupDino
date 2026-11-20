@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 function productSlug(AppStorage $storage, string $name, ?int $productId): string
 {
@@ -21,19 +20,19 @@ function receiveProductImage(array $upload): ?string
     if (($upload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
         return null;
     }
-    if (($upload['error'] ?? null) !== UPLOAD_ERR_OK || !is_uploaded_file((string)($upload['tmp_name'] ?? ''))) {
+    if (($upload['error'] ?? null) !== UPLOAD_ERR_OK || !is_uploaded_file((string) ($upload['tmp_name'] ?? ''))) {
         throw new InvalidArgumentException('A imagem não foi enviada corretamente.');
     }
     if (($upload['size'] ?? 0) > 5 * 1024 * 1024) {
         throw new InvalidArgumentException('A imagem deve ter no máximo 5 MB.');
     }
 
-    $mime = (new finfo(FILEINFO_MIME_TYPE))->file((string)$upload['tmp_name']);
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file((string) $upload['tmp_name']);
     $extensions = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
     if (!is_string($mime) || !isset($extensions[$mime])) {
         throw new InvalidArgumentException('Use uma imagem JPG, PNG, WebP ou GIF.');
     }
-    $dimensions = getimagesize((string)$upload['tmp_name']);
+    $dimensions = getimagesize((string) $upload['tmp_name']);
     if ($dimensions === false || $dimensions[0] > 10000 || $dimensions[1] > 10000 || $dimensions[0] * $dimensions[1] > 40000000) {
         throw new InvalidArgumentException('A imagem tem dimensões inválidas ou muito grandes.');
     }
@@ -43,7 +42,7 @@ function receiveProductImage(array $upload): ?string
         throw new RuntimeException('Não foi possível preparar o diretório de imagens.');
     }
     $filename = bin2hex(random_bytes(16)) . '.' . $extensions[$mime];
-    if (!move_uploaded_file((string)$upload['tmp_name'], $directory . '/' . $filename)) {
+    if (!move_uploaded_file((string) $upload['tmp_name'], $directory . '/' . $filename)) {
         throw new RuntimeException('Não foi possível salvar a imagem enviada.');
     }
     return $filename;
@@ -81,10 +80,10 @@ function saveManagedProduct(AppStorage $storage, int $actorId, bool $isAdmin, ?i
         throw new InvalidArgumentException('O produto não foi encontrado ou não pertence a esta conta.');
     }
 
-    $name = trim((string)($input['name'] ?? ''));
-    $description = trim((string)($input['description'] ?? ''));
+    $name = trim((string) ($input['name'] ?? ''));
+    $description = trim((string) ($input['description'] ?? ''));
     $categoryId = filter_var($input['category_id'] ?? null, FILTER_VALIDATE_INT);
-    $price = trim((string)($input['price'] ?? ''));
+    $price = trim((string) ($input['price'] ?? ''));
     $stock = filter_var($input['stock'] ?? null, FILTER_VALIDATE_INT);
     if ($name === '' || mb_strlen($name) > 180) {
         throw new InvalidArgumentException('Informe um nome com até 180 caracteres.');
@@ -103,7 +102,7 @@ function saveManagedProduct(AppStorage $storage, int $actorId, bool $isAdmin, ?i
     }
     $categoryExists = false;
     foreach ($storage->listCategories() as $category) {
-        if ((int)$category['id'] === $categoryId) {
+        if ((int) $category['id'] === $categoryId) {
             $categoryExists = true;
             break;
         }
@@ -123,7 +122,7 @@ function saveManagedProduct(AppStorage $storage, int $actorId, bool $isAdmin, ?i
     }
     $featured = $isAdmin
         ? (isset($input['featured']) && $input['featured'] === '1' ? 1 : 0)
-        : (int)($existing['featured'] ?? 0);
+        : (int) ($existing['featured'] ?? 0);
 
     try {
         $storage->saveProduct($productId, $isAdmin ? null : $actorId, [

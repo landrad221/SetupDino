@@ -1,5 +1,5 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
+
 require_once __DIR__ . '/../includes/auth.php';
 requireAdmin();
 require_once __DIR__ . '/../config/database.php';
@@ -9,8 +9,8 @@ $db = getStorage();
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf($_POST['csrf'] ?? null);
-    $action = (string)($_POST['action'] ?? '');
-    $name = trim((string)($_POST['name'] ?? ''));
+    $action = (string) ($_POST['action'] ?? '');
+    $name = trim((string) ($_POST['name'] ?? ''));
     if ($action === 'delete') {
         $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
         if ($id === false || $id < 1) {
@@ -58,7 +58,8 @@ $pageTitle = 'Categorias';
 require __DIR__ . '/../includes/header.php';
 ?>
 <section class="section"><div class="container"><div class="admin-layout">
-    <?php $managementIsAdmin = true; require __DIR__ . '/../includes/management-sidebar.php'; ?>
+    <?php $managementIsAdmin = true;
+    require __DIR__ . '/../includes/management-sidebar.php'; ?>
     <section class="admin-content">
         <span class="eyebrow">Organização do catálogo</span><h1>Categorias</h1>
         <?php if (($_GET['saved'] ?? '') === '1'): ?><p class="notice">Categoria salva.</p><?php elseif (($_GET['saved'] ?? '') === 'deleted'): ?><p class="notice">Categoria excluída.</p><?php endif; ?>
@@ -71,12 +72,12 @@ require __DIR__ . '/../includes/header.php';
         <?php if (!$categories): ?><p class="empty-state">Nenhuma categoria cadastrada.</p><?php else: ?>
         <div class="category-admin-list"><?php foreach ($categories as $category): ?>
             <div class="category-admin-row">
-                <form class="inline-form" method="post"><input type="hidden" name="csrf" value="<?= escape(csrfToken()) ?>"><input type="hidden" name="action" value="update"><input type="hidden" name="id" value="<?= (int)$category['id'] ?>">
-                    <label class="sr-only" for="category-<?= (int)$category['id'] ?>">Nome da categoria</label><input id="category-<?= (int)$category['id'] ?>" name="name" maxlength="100" required value="<?= escape($category['name']) ?>">
+                <form class="inline-form" method="post"><input type="hidden" name="csrf" value="<?= escape(csrfToken()) ?>"><input type="hidden" name="action" value="update"><input type="hidden" name="id" value="<?= (int) $category['id'] ?>">
+                    <label class="sr-only" for="category-<?= (int) $category['id'] ?>">Nome da categoria</label><input id="category-<?= (int) $category['id'] ?>" name="name" maxlength="100" required value="<?= escape($category['name']) ?>">
                     <button class="btn btn-outline" type="submit">Salvar</button>
                 </form>
-                <span class="muted"><?= (int)$category['product_count'] ?> produto(s)</span>
-                <form method="post" onsubmit="return confirm('Excluir esta categoria?')"><input type="hidden" name="csrf" value="<?= escape(csrfToken()) ?>"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= (int)$category['id'] ?>"><button class="btn btn-outline" type="submit">Excluir</button></form>
+                <span class="muted"><?= (int) $category['product_count'] ?> produto(s)</span>
+                <form method="post" onsubmit="return confirm('Excluir esta categoria?')"><input type="hidden" name="csrf" value="<?= escape(csrfToken()) ?>"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= (int) $category['id'] ?>"><button class="btn btn-outline" type="submit">Excluir</button></form>
             </div>
         <?php endforeach; ?></div>
         <?php endif; ?>

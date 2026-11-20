@@ -1,5 +1,5 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
+
 require_once __DIR__ . '/../includes/auth.php';
 requireAdmin();
 require_once __DIR__ . '/../config/database.php';
@@ -33,7 +33,8 @@ require __DIR__ . '/../includes/header.php';
 <section class="section">
     <div class="container">
         <div class="admin-layout">
-            <?php $managementIsAdmin = true; require __DIR__ . '/../includes/management-sidebar.php'; ?>
+            <?php $managementIsAdmin = true;
+            require __DIR__ . '/../includes/management-sidebar.php'; ?>
             <section class="admin-content">
                 <div class="section-heading"><div><span class="eyebrow">Catálogo</span><h1>Produtos</h1></div><a class="btn btn-primary" href="/admin/product-form.php">Adicionar produto</a></div>
                 <?php if (($_GET['saved'] ?? '') === '1'): ?><p class="notice">Produto salvo com sucesso.</p><?php elseif (($_GET['saved'] ?? '') === 'deleted'): ?><p class="notice">Produto excluído.</p><?php endif; ?>
@@ -45,9 +46,9 @@ require __DIR__ . '/../includes/header.php';
                         <td><?= escape($product['category_name']) ?></td>
                         <td><?= escape($product['seller_name'] ?? 'SetupDino') ?></td>
                         <td><?= formatPrice($product['price']) ?></td>
-                        <td><?= (int)$product['stock'] ?></td>
-                        <td class="table-actions"><a class="btn btn-outline" href="/admin/product-form.php?id=<?= (int)$product['id'] ?>">Editar</a>
-                            <form method="post" onsubmit="return confirm('Excluir este produto?')"><input type="hidden" name="csrf" value="<?= escape(csrfToken()) ?>"><input type="hidden" name="id" value="<?= (int)$product['id'] ?>"><button class="btn btn-outline" type="submit">Excluir</button></form>
+                        <td><?= (int) $product['stock'] ?></td>
+                        <td class="table-actions"><a class="btn btn-outline" href="/admin/product-form.php?id=<?= (int) $product['id'] ?>">Editar</a>
+                            <form method="post" onsubmit="return confirm('Excluir este produto?')"><input type="hidden" name="csrf" value="<?= escape(csrfToken()) ?>"><input type="hidden" name="id" value="<?= (int) $product['id'] ?>"><button class="btn btn-outline" type="submit">Excluir</button></form>
                         </td>
                     </tr><?php endforeach; ?>
                     </tbody></table></div>

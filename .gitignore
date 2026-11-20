@@ -3,7 +3,6 @@
 !.env.example
 .idea/
 .vscode/
-/vendor/
 *.log
 *.tmp
 /uploads/
@@ -11,3 +10,5 @@
 !/assets/images/products/README.md
 .DS_Store
 Thumbs.db
+*.csv
+.lock

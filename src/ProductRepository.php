@@ -1,9 +1,10 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 final class ProductRepository
 {
-    public function __construct(private AppStorage $storage) {}
+    public function __construct(
+        private AppStorage $storage
+    ) {}
 
     public function getFeaturedProducts(int $limit = 8): array
     {

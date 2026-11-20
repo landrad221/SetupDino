@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 interface AppStorage
 {
@@ -9,12 +8,10 @@ interface AppStorage
     public function listUsers(): array;
     public function updateUserRole(int $userId, string $role): void;
     public function getAdminDashboardCounts(): array;
-
     public function listCategories(bool $withProductCount = false): array;
     public function createCategory(string $name, string $slug): void;
     public function updateCategory(int $categoryId, string $name, string $slug): void;
     public function deleteCategory(int $categoryId): void;
-
     public function getFeaturedProducts(int $limit): array;
     public function searchProducts(string $search, string $category, string $sort): array;
     public function getProductById(int $productId): ?array;
@@ -26,7 +23,6 @@ interface AppStorage
     public function listAdminProducts(): array;
     public function listSellerProducts(int $sellerId): array;
     public function getSellerSummary(int $sellerId): array;
-
     public function createOrder(int $userId, array $cart, array $address): int;
     public function getOrderForUser(int $orderId, int $userId): ?array;
     public function listAdminOrders(): array;

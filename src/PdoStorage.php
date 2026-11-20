@@ -1,9 +1,10 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 final class PdoStorage implements AppStorage
 {
-    public function __construct(private PDO $db) {}
+    public function __construct(
+        private PDO $db
+    ) {}
 
     public function findUserByEmail(string $email): ?array
     {
@@ -14,9 +15,9 @@ final class PdoStorage implements AppStorage
 
     public function createCustomer(string $name, string $email, string $passwordHash): array
     {
-        $stmt = $this->db->prepare('INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, \'customer\')');
+        $stmt = $this->db->prepare("INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'customer')");
         $stmt->execute([$name, $email, $passwordHash]);
-        return ['id' => (int)$this->db->lastInsertId(), 'role' => 'customer'];
+        return ['id' => (int) $this->db->lastInsertId(), 'role' => 'customer'];
     }
 
     public function getUserRole(int $userId): ?string
@@ -41,10 +42,10 @@ final class PdoStorage implements AppStorage
     public function getAdminDashboardCounts(): array
     {
         return [
-            'products' => (int)$this->db->query('SELECT COUNT(*) FROM products')->fetchColumn(),
-            'orders' => (int)$this->db->query('SELECT COUNT(*) FROM orders')->fetchColumn(),
-            'sellers' => (int)$this->db->query("SELECT COUNT(*) FROM users WHERE role = 'seller'")->fetchColumn(),
-            'customers' => (int)$this->db->query("SELECT COUNT(*) FROM users WHERE role = 'customer'")->fetchColumn(),
+            'products' => (int) $this->db->query('SELECT COUNT(*) FROM products')->fetchColumn(),
+            'orders' => (int) $this->db->query('SELECT COUNT(*) FROM orders')->fetchColumn(),
+            'sellers' => (int) $this->db->query("SELECT COUNT(*) FROM users WHERE role = 'seller'")->fetchColumn(),
+            'customers' => (int) $this->db->query("SELECT COUNT(*) FROM users WHERE role = 'customer'")->fetchColumn(),
         ];
     }
 
@@ -148,7 +149,7 @@ final class PdoStorage implements AppStorage
         }
         $stmt = $this->db->prepare($sql . ' LIMIT 1');
         $stmt->execute($params);
-        return (bool)$stmt->fetchColumn();
+        return (bool) $stmt->fetchColumn();
     }
 
     public function saveProduct(?int $productId, ?int $sellerId, array $product): void
@@ -192,7 +193,7 @@ final class PdoStorage implements AppStorage
     {
         $stmt = $this->db->prepare('SELECT 1 FROM products WHERE image = ? LIMIT 1');
         $stmt->execute([$filename]);
-        return (bool)$stmt->fetchColumn();
+        return (bool) $stmt->fetchColumn();
     }
 
     public function listAdminProducts(): array
@@ -232,21 +233,21 @@ final class PdoStorage implements AppStorage
             }
             $totalCents = 0;
             foreach ($products as $product) {
-                $quantity = $quantities[(int)$product['id']];
-                if ($quantity > (int)$product['stock']) {
+                $quantity = $quantities[(int) $product['id']];
+                if ($quantity > (int) $product['stock']) {
                     throw new InvalidArgumentException('Not enough stock for ' . $product['name']);
                 }
-                $totalCents += $this->priceToCents((string)$product['price']) * $quantity;
+                $totalCents += $this->priceToCents((string) $product['price']) * $quantity;
             }
             $order = $this->db->prepare('INSERT INTO orders (user_id, total, status) VALUES (?, ?, ?)');
             $order->execute([$userId, number_format($totalCents / 100, 2, '.', ''), 'pending']);
-            $orderId = (int)$this->db->lastInsertId();
+            $orderId = (int) $this->db->lastInsertId();
             $itemStmt = $this->db->prepare('INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)');
             $stockStmt = $this->db->prepare('UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?');
             foreach ($products as $product) {
-                $productId = (int)$product['id'];
+                $productId = (int) $product['id'];
                 $quantity = $quantities[$productId];
-                $price = number_format($this->priceToCents((string)$product['price']) / 100, 2, '.', '');
+                $price = number_format($this->priceToCents((string) $product['price']) / 100, 2, '.', '');
                 $itemStmt->execute([$orderId, $productId, $quantity, $price]);
                 $stockStmt->execute([$quantity, $productId, $quantity]);
                 if ($stockStmt->rowCount() !== 1) {
@@ -326,6 +327,6 @@ final class PdoStorage implements AppStorage
         if (!preg_match('/^(\d+)\.(\d{2})$/', $price, $matches)) {
             throw new RuntimeException('Invalid database price.');
         }
-        return (int)$matches[1] * 100 + (int)$matches[2];
+        return (int) $matches[1] * 100 + (int) $matches[2];
     }
 }

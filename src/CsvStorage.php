@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 final class CsvStorage implements AppStorage
 {
@@ -15,8 +14,9 @@ final class CsvStorage implements AppStorage
     private array $tables = [];
     private bool $active = false;
 
-    public function __construct(private string $directory)
-    {
+    public function __construct(
+        private string $directory
+    ) {
         if (!is_dir($directory) && !mkdir($directory, 0700, true) && !is_dir($directory)) {
             throw new RuntimeException('Could not create the CSV storage directory.');
         }
@@ -68,7 +68,7 @@ final class CsvStorage implements AppStorage
     {
         return $this->access(function () use ($userId): ?string {
             foreach ($this->tables['users'] as $user) {
-                if ((int)$user['id'] === $userId) {
+                if ((int) $user['id'] === $userId) {
                     return $user['role'];
                 }
             }
@@ -82,8 +82,11 @@ final class CsvStorage implements AppStorage
             $users = $this->tables['users'];
             usort($users, static fn(array $left, array $right): int => strcmp($right['created_at'], $left['created_at']));
             return array_map(static fn(array $user): array => [
-                'id' => $user['id'], 'name' => $user['name'], 'email' => $user['email'],
-                'role' => $user['role'], 'created_at' => $user['created_at'],
+                'id' => $user['id'],
+                'name' => $user['name'],
+                'email' => $user['email'],
+                'role' => $user['role'],
+                'created_at' => $user['created_at'],
             ], $users);
         });
     }
@@ -92,7 +95,7 @@ final class CsvStorage implements AppStorage
     {
         $this->access(function () use ($userId, $role): void {
             foreach ($this->tables['users'] as &$user) {
-                if ((int)$user['id'] === $userId && $user['role'] !== 'admin') {
+                if ((int) $user['id'] === $userId && $user['role'] !== 'admin') {
                     $user['role'] = $role;
                     break;
                 }
@@ -124,7 +127,7 @@ final class CsvStorage implements AppStorage
                 if ($withProductCount) {
                     $category['product_count'] = count(array_filter(
                         $this->tables['products'],
-                        static fn(array $product): bool => (int)$product['category_id'] === (int)$category['id']
+                        static fn(array $product): bool => (int) $product['category_id'] === (int) $category['id']
                     ));
                 }
             }
@@ -153,7 +156,7 @@ final class CsvStorage implements AppStorage
         $this->access(function () use ($categoryId, $name, $slug): void {
             $this->assertUniqueCategorySlug($slug, $categoryId);
             foreach ($this->tables['categories'] as &$category) {
-                if ((int)$category['id'] === $categoryId) {
+                if ((int) $category['id'] === $categoryId) {
                     $category['name'] = $name;
                     $category['slug'] = $slug;
                     break;
@@ -167,13 +170,13 @@ final class CsvStorage implements AppStorage
     {
         $this->access(function () use ($categoryId): void {
             foreach ($this->tables['products'] as $product) {
-                if ((int)$product['category_id'] === $categoryId) {
+                if ((int) $product['category_id'] === $categoryId) {
                     throw new PDOException('Category is still referenced by a product.');
                 }
             }
             $this->tables['categories'] = array_values(array_filter(
                 $this->tables['categories'],
-                static fn(array $category): bool => (int)$category['id'] !== $categoryId
+                static fn(array $category): bool => (int) $category['id'] !== $categoryId
             ));
         }, true);
     }
@@ -181,8 +184,8 @@ final class CsvStorage implements AppStorage
     public function getFeaturedProducts(int $limit): array
     {
         return $this->access(function () use ($limit): array {
-            $products = array_values(array_filter($this->tables['products'], static fn(array $product): bool => (int)$product['featured'] === 1));
-            usort($products, static fn(array $left, array $right): int => (int)$right['id'] <=> (int)$left['id']);
+            $products = array_values(array_filter($this->tables['products'], static fn(array $product): bool => (int) $product['featured'] === 1));
+            usort($products, static fn(array $left, array $right): int => (int) $right['id'] <=> (int) $left['id']);
             return array_map(fn(array $product): array => $this->joinCategory($product), array_slice($products, 0, max(1, min($limit, 24))));
         });
     }
@@ -192,7 +195,7 @@ final class CsvStorage implements AppStorage
         return $this->access(function () use ($search, $category, $sort): array {
             $products = [];
             foreach ($this->tables['products'] as $product) {
-                $categoryRow = $this->findRow('categories', (int)$product['category_id']);
+                $categoryRow = $this->findRow('categories', (int) $product['category_id']);
                 if (!$categoryRow || ($category !== '' && $categoryRow['slug'] !== $category)) {
                     continue;
                 }
@@ -202,10 +205,10 @@ final class CsvStorage implements AppStorage
                 $products[] = $this->joinCategory($product, $categoryRow);
             }
             usort($products, static function (array $left, array $right) use ($sort): int {
-                $byId = (int)$right['id'] <=> (int)$left['id'];
+                $byId = (int) $right['id'] <=> (int) $left['id'];
                 return match ($sort) {
-                    'price_asc' => ((float)$left['price'] <=> (float)$right['price']) ?: $byId,
-                    'price_desc' => ((float)$right['price'] <=> (float)$left['price']) ?: $byId,
+                    'price_asc' => ((float) $left['price'] <=> (float) $right['price']) ?: $byId,
+                    'price_desc' => ((float) $right['price'] <=> (float) $left['price']) ?: $byId,
                     'name_asc' => strcasecmp($left['name'], $right['name']) ?: $byId,
                     default => $byId,
                 };
@@ -226,7 +229,7 @@ final class CsvStorage implements AppStorage
     {
         return $this->access(function () use ($productId, $sellerId): ?array {
             $product = $this->findRow('products', $productId);
-            if (!$product || ($sellerId !== null && (int)($product['seller_id'] ?? 0) !== $sellerId)) {
+            if (!$product || ($sellerId !== null && (int) ($product['seller_id'] ?? 0) !== $sellerId)) {
                 return null;
             }
             return $product;
@@ -237,7 +240,7 @@ final class CsvStorage implements AppStorage
     {
         return $this->access(function () use ($slug, $excludeProductId): bool {
             foreach ($this->tables['products'] as $product) {
-                if ($product['slug'] === $slug && (int)$product['id'] !== $excludeProductId) {
+                if ($product['slug'] === $slug && (int) $product['id'] !== $excludeProductId) {
                     return true;
                 }
             }
@@ -248,15 +251,15 @@ final class CsvStorage implements AppStorage
     public function saveProduct(?int $productId, ?int $sellerId, array $product): void
     {
         $this->access(function () use ($productId, $sellerId, $product): void {
-            if (!$this->findRow('categories', (int)$product['category_id'])) {
+            if (!$this->findRow('categories', (int) $product['category_id'])) {
                 throw new InvalidArgumentException('A categoria selecionada não existe.');
             }
             foreach ($this->tables['products'] as $existing) {
-                if ($existing['slug'] === $product['slug'] && (int)$existing['id'] !== $productId) {
+                if ($existing['slug'] === $product['slug'] && (int) $existing['id'] !== $productId) {
                     throw new PDOException('Duplicate product slug.');
                 }
             }
-            $product['price'] = number_format((float)$product['price'], 2, '.', '');
+            $product['price'] = number_format((float) $product['price'], 2, '.', '');
             if ($productId === null) {
                 $product['seller_id'] = $sellerId;
                 $product['id'] = $this->nextId('products');
@@ -265,7 +268,7 @@ final class CsvStorage implements AppStorage
                 return;
             }
             foreach ($this->tables['products'] as &$existing) {
-                if ((int)$existing['id'] === $productId && ($sellerId === null || (int)($existing['seller_id'] ?? 0) === $sellerId)) {
+                if ((int) $existing['id'] === $productId && ($sellerId === null || (int) ($existing['seller_id'] ?? 0) === $sellerId)) {
                     $existing = array_merge($existing, $product, ['id' => $productId]);
                     break;
                 }
@@ -278,17 +281,17 @@ final class CsvStorage implements AppStorage
     {
         return $this->access(function () use ($productId, $sellerId): ?string {
             $product = $this->findRow('products', $productId);
-            if (!$product || ($sellerId !== null && (int)($product['seller_id'] ?? 0) !== $sellerId)) {
+            if (!$product || ($sellerId !== null && (int) ($product['seller_id'] ?? 0) !== $sellerId)) {
                 throw new InvalidArgumentException('O produto não foi encontrado ou não pertence a esta conta.');
             }
             foreach ($this->tables['order_items'] as $item) {
-                if ((int)$item['product_id'] === $productId) {
+                if ((int) $item['product_id'] === $productId) {
                     throw new PDOException('Product is referenced by an order.');
                 }
             }
             $this->tables['products'] = array_values(array_filter(
                 $this->tables['products'],
-                static fn(array $row): bool => (int)$row['id'] !== $productId
+                static fn(array $row): bool => (int) $row['id'] !== $productId
             ));
             return $product['image'];
         }, true);
@@ -311,18 +314,22 @@ final class CsvStorage implements AppStorage
         return $this->access(function (): array {
             $products = [];
             foreach ($this->tables['products'] as $product) {
-                $category = $this->findRow('categories', (int)$product['category_id']);
+                $category = $this->findRow('categories', (int) $product['category_id']);
                 if (!$category) {
                     continue;
                 }
-                $seller = isset($product['seller_id']) ? $this->findRow('users', (int)$product['seller_id']) : null;
+                $seller = isset($product['seller_id']) ? $this->findRow('users', (int) $product['seller_id']) : null;
                 $products[] = [
-                    'id' => $product['id'], 'name' => $product['name'], 'price' => $product['price'],
-                    'stock' => $product['stock'], 'featured' => $product['featured'],
-                    'category_name' => $category['name'], 'seller_name' => $seller['name'] ?? null,
+                    'id' => $product['id'],
+                    'name' => $product['name'],
+                    'price' => $product['price'],
+                    'stock' => $product['stock'],
+                    'featured' => $product['featured'],
+                    'category_name' => $category['name'],
+                    'seller_name' => $seller['name'] ?? null,
                 ];
             }
-            usort($products, static fn(array $left, array $right): int => (int)$right['id'] <=> (int)$left['id']);
+            usort($products, static fn(array $left, array $right): int => (int) $right['id'] <=> (int) $left['id']);
             return $products;
         });
     }
@@ -332,11 +339,14 @@ final class CsvStorage implements AppStorage
         return $this->access(function () use ($sellerId): array {
             $products = array_values(array_filter(
                 $this->tables['products'],
-                static fn(array $product): bool => (int)($product['seller_id'] ?? 0) === $sellerId
+                static fn(array $product): bool => (int) ($product['seller_id'] ?? 0) === $sellerId
             ));
-            usort($products, static fn(array $left, array $right): int => (int)$right['id'] <=> (int)$left['id']);
+            usort($products, static fn(array $left, array $right): int => (int) $right['id'] <=> (int) $left['id']);
             return array_map(static fn(array $product): array => [
-                'id' => $product['id'], 'name' => $product['name'], 'price' => $product['price'], 'stock' => $product['stock'],
+                'id' => $product['id'],
+                'name' => $product['name'],
+                'price' => $product['price'],
+                'stock' => $product['stock'],
             ], $products);
         });
     }
@@ -346,9 +356,9 @@ final class CsvStorage implements AppStorage
         return $this->access(function () use ($sellerId): array {
             $products = array_filter(
                 $this->tables['products'],
-                static fn(array $product): bool => (int)($product['seller_id'] ?? 0) === $sellerId
+                static fn(array $product): bool => (int) ($product['seller_id'] ?? 0) === $sellerId
             );
-            return ['product_count' => count($products), 'stock_count' => array_sum(array_map(static fn(array $product): int => (int)$product['stock'], $products))];
+            return ['product_count' => count($products), 'stock_count' => array_sum(array_map(static fn(array $product): int => (int) $product['stock'], $products))];
         });
     }
 
@@ -361,44 +371,56 @@ final class CsvStorage implements AppStorage
             }
             $products = [];
             foreach ($quantities as $productId => $quantity) {
-                $product = $this->findRow('products', (int)$productId);
+                $product = $this->findRow('products', (int) $productId);
                 if (!$product) {
                     throw new InvalidArgumentException('A product is no longer available.');
                 }
-                if ($quantity > (int)$product['stock']) {
+                if ($quantity > (int) $product['stock']) {
                     throw new InvalidArgumentException('Not enough stock for ' . $product['name']);
                 }
                 $products[] = $product;
             }
             $totalCents = 0;
             foreach ($products as $product) {
-                $totalCents += $this->priceToCents((string)$product['price']) * $quantities[(int)$product['id']];
+                $totalCents += $this->priceToCents((string) $product['price']) * $quantities[(int) $product['id']];
             }
             $orderId = $this->nextId('orders');
             $this->tables['orders'][] = [
-                'id' => $orderId, 'user_id' => $userId, 'total' => number_format($totalCents / 100, 2, '.', ''),
-                'status' => 'pending', 'created_at' => $this->now(),
+                'id' => $orderId,
+                'user_id' => $userId,
+                'total' => number_format($totalCents / 100, 2, '.', ''),
+                'status' => 'pending',
+                'created_at' => $this->now(),
             ];
             foreach ($products as $product) {
-                $productId = (int)$product['id'];
+                $productId = (int) $product['id'];
                 $quantity = $quantities[$productId];
                 $this->tables['order_items'][] = [
-                    'id' => $this->nextId('order_items'), 'order_id' => $orderId, 'product_id' => $productId,
-                    'quantity' => $quantity, 'unit_price' => number_format($this->priceToCents((string)$product['price']) / 100, 2, '.', ''),
+                    'id' => $this->nextId('order_items'),
+                    'order_id' => $orderId,
+                    'product_id' => $productId,
+                    'quantity' => $quantity,
+                    'unit_price' => number_format($this->priceToCents((string) $product['price']) / 100, 2, '.', ''),
                 ];
                 foreach ($this->tables['products'] as &$storedProduct) {
-                    if ((int)$storedProduct['id'] === $productId) {
-                        $storedProduct['stock'] = (int)$storedProduct['stock'] - $quantity;
+                    if ((int) $storedProduct['id'] === $productId) {
+                        $storedProduct['stock'] = (int) $storedProduct['stock'] - $quantity;
                         break;
                     }
                 }
                 unset($storedProduct);
             }
             $this->tables['order_addresses'][] = [
-                'id' => $this->nextId('order_addresses'), 'order_id' => $orderId,
-                'recipient_name' => $address['recipient_name'], 'postal_code' => $address['postal_code'],
-                'street' => $address['street'], 'number' => $address['number'], 'complement' => $address['complement'],
-                'neighborhood' => $address['neighborhood'], 'city' => $address['city'], 'state' => $address['state'],
+                'id' => $this->nextId('order_addresses'),
+                'order_id' => $orderId,
+                'recipient_name' => $address['recipient_name'],
+                'postal_code' => $address['postal_code'],
+                'street' => $address['street'],
+                'number' => $address['number'],
+                'complement' => $address['complement'],
+                'neighborhood' => $address['neighborhood'],
+                'city' => $address['city'],
+                'state' => $address['state'],
             ];
             return $orderId;
         }, true);
@@ -408,7 +430,7 @@ final class CsvStorage implements AppStorage
     {
         return $this->access(function () use ($orderId, $userId): ?array {
             foreach ($this->tables['orders'] as $order) {
-                if ((int)$order['id'] === $orderId && (int)$order['user_id'] === $userId) {
+                if ((int) $order['id'] === $orderId && (int) $order['user_id'] === $userId) {
                     return ['id' => $order['id'], 'total' => $order['total'], 'status' => $order['status']];
                 }
             }
@@ -421,14 +443,18 @@ final class CsvStorage implements AppStorage
         return $this->access(function (): array {
             $orders = [];
             foreach ($this->tables['orders'] as $order) {
-                $user = $this->findRow('users', (int)$order['user_id']);
+                $user = $this->findRow('users', (int) $order['user_id']);
                 if (!$user) {
                     continue;
                 }
                 $orders[] = [
-                    'id' => $order['id'], 'total' => $order['total'], 'status' => $order['status'],
-                    'created_at' => $order['created_at'], 'customer_name' => $user['name'], 'customer_email' => $user['email'],
-                    'item_count' => count(array_filter($this->tables['order_items'], static fn(array $item): bool => (int)$item['order_id'] === (int)$order['id'])),
+                    'id' => $order['id'],
+                    'total' => $order['total'],
+                    'status' => $order['status'],
+                    'created_at' => $order['created_at'],
+                    'customer_name' => $user['name'],
+                    'customer_email' => $user['email'],
+                    'item_count' => count(array_filter($this->tables['order_items'], static fn(array $item): bool => (int) $item['order_id'] === (int) $order['id'])),
                 ];
             }
             usort($orders, static fn(array $left, array $right): int => strcmp($right['created_at'], $left['created_at']));
@@ -440,7 +466,7 @@ final class CsvStorage implements AppStorage
     {
         $this->access(function () use ($orderId, $status): void {
             foreach ($this->tables['orders'] as &$order) {
-                if ((int)$order['id'] === $orderId) {
+                if ((int) $order['id'] === $orderId) {
                     $order['status'] = $status;
                     break;
                 }
@@ -510,7 +536,7 @@ final class CsvStorage implements AppStorage
                 }
                 foreach (['id', 'category_id', 'seller_id', 'user_id', 'stock', 'featured', 'order_id', 'product_id', 'quantity'] as $integerColumn) {
                     if (array_key_exists($integerColumn, $row)) {
-                        $row[$integerColumn] = $row[$integerColumn] === '' ? null : (int)$row[$integerColumn];
+                        $row[$integerColumn] = $row[$integerColumn] === '' ? null : (int) $row[$integerColumn];
                     }
                 }
                 foreach (['seller_id', 'description', 'image', 'complement'] as $nullableColumn) {
@@ -569,8 +595,12 @@ final class CsvStorage implements AppStorage
     {
         $now = $this->now();
         $categories = [
-            ['Keyboards', 'keyboards'], ['Mice', 'mice'], ['Headsets', 'headsets'],
-            ['Gaming Chairs', 'gaming-chairs'], ['Monitors', 'monitors'], ['Accessories', 'accessories'],
+            ['Keyboards', 'keyboards'],
+            ['Mice', 'mice'],
+            ['Headsets', 'headsets'],
+            ['Gaming Chairs', 'gaming-chairs'],
+            ['Monitors', 'monitors'],
+            ['Accessories', 'accessories'],
         ];
         foreach ($categories as $index => [$name, $slug]) {
             $this->tables['categories'][] = ['id' => $index + 1, 'name' => $name, 'slug' => $slug, 'created_at' => $now];
@@ -586,7 +616,7 @@ final class CsvStorage implements AppStorage
     private function assertUniqueCategorySlug(string $slug, ?int $excludeId = null): void
     {
         foreach ($this->tables['categories'] as $category) {
-            if ($category['slug'] === $slug && (int)$category['id'] !== $excludeId) {
+            if ($category['slug'] === $slug && (int) $category['id'] !== $excludeId) {
                 throw new PDOException('Duplicate category slug.');
             }
         }
@@ -594,7 +624,7 @@ final class CsvStorage implements AppStorage
 
     private function joinCategory(array $product, ?array $category = null): array
     {
-        $category ??= $this->findRow('categories', (int)$product['category_id']);
+        $category ??= $this->findRow('categories', (int) $product['category_id']);
         if (!$category) {
             return $product;
         }
@@ -606,7 +636,7 @@ final class CsvStorage implements AppStorage
     private function findRow(string $table, int $id): ?array
     {
         foreach ($this->tables[$table] as $row) {
-            if ((int)$row['id'] === $id) {
+            if ((int) $row['id'] === $id) {
                 return $row;
             }
         }
@@ -617,7 +647,7 @@ final class CsvStorage implements AppStorage
     {
         $maximum = 0;
         foreach ($this->tables[$table] as $row) {
-            $maximum = max($maximum, (int)$row['id']);
+            $maximum = max($maximum, (int) $row['id']);
         }
         return $maximum + 1;
     }
@@ -647,7 +677,7 @@ final class CsvStorage implements AppStorage
         if (!preg_match('/^(\d+)\.(\d{2})$/', $price, $matches)) {
             throw new RuntimeException('Invalid CSV price.');
         }
-        return (int)$matches[1] * 100 + (int)$matches[2];
+        return (int) $matches[1] * 100 + (int) $matches[2];
     }
 
     private function now(): string

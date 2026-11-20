@@ -1,5 +1,5 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
+
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/product-management.php';
@@ -17,7 +17,7 @@ if (isset($_GET['id'])) {
 $product = null;
 $error = '';
 if ($productId !== null) {
-    $product = $db->getManagedProduct($productId, $productFormAdmin ? null : (int)$_SESSION['user_id']);
+    $product = $db->getManagedProduct($productId, $productFormAdmin ? null : (int) $_SESSION['user_id']);
     if (!$product) {
         http_response_code(404);
         exit('Produto não encontrado ou sem permissão para editá-lo.');
@@ -27,7 +27,7 @@ if ($productId !== null) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf($_POST['csrf'] ?? null);
     try {
-        saveManagedProduct($db, (int)$_SESSION['user_id'], $productFormAdmin, $productId, $_POST, $_FILES['image'] ?? []);
+        saveManagedProduct($db, (int) $_SESSION['user_id'], $productFormAdmin, $productId, $_POST, $_FILES['image'] ?? []);
         header('Location: ' . $productFormBase . '/products.php?saved=1');
         exit;
     } catch (InvalidArgumentException $e) {
@@ -55,25 +55,25 @@ require __DIR__ . '/header.php';
                 <form class="stack-form management-form" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="csrf" value="<?= escape(csrfToken()) ?>">
                     <label>Nome do produto
-                        <input name="name" maxlength="180" required value="<?= escape((string)$value('name')) ?>">
+                        <input name="name" maxlength="180" required value="<?= escape((string) $value('name')) ?>">
                     </label>
                     <label>Categoria
                         <select name="category_id" required>
                             <option value="">Selecione uma categoria</option>
                             <?php foreach ($categories as $category): ?>
-                                <option value="<?= (int)$category['id'] ?>" <?= (string)$value('category_id') === (string)$category['id'] ? 'selected' : '' ?>><?= escape($category['name']) ?></option>
+                                <option value="<?= (int) $category['id'] ?>" <?= (string) $value('category_id') === (string) $category['id'] ? 'selected' : '' ?>><?= escape($category['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </label>
                     <label>Descrição
-                        <textarea name="description" rows="5" maxlength="15000" required><?= escape((string)$value('description')) ?></textarea>
+                        <textarea name="description" rows="5" maxlength="15000" required><?= escape((string) $value('description')) ?></textarea>
                     </label>
                     <div class="form-grid">
                         <label>Preço (R$)
-                            <input name="price" type="number" min="0" max="99999999.99" step="0.01" required value="<?= escape((string)$value('price')) ?>">
+                            <input name="price" type="number" min="0" max="99999999.99" step="0.01" required value="<?= escape((string) $value('price')) ?>">
                         </label>
                         <label>Quantidade em estoque
-                            <input name="stock" type="number" min="0" step="1" required value="<?= escape((string)$value('stock', '0')) ?>">
+                            <input name="stock" type="number" min="0" step="1" required value="<?= escape((string) $value('stock', '0')) ?>">
                         </label>
                     </div>
                     <label>Foto do produto (JPG, PNG, WebP ou GIF; até 5 MB)
@@ -81,7 +81,7 @@ require __DIR__ . '/header.php';
                     </label>
                     <?php if (!empty($product['image'])): ?>
                         <div class="current-image">
-                            <img src="<?= escape(asset('images/products/' . basename((string)$product['image']))) ?>" alt="">
+                            <img src="<?= escape(asset('images/products/' . basename((string) $product['image']))) ?>" alt="">
                             <label><input type="checkbox" name="remove_image" value="1"> Remover foto atual</label>
                         </div>
                     <?php endif; ?>

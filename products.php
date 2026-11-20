@@ -1,20 +1,24 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
+
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/src/ProductRepository.php';
 require_once __DIR__ . '/includes/functions.php';
-$search = trim((string)($_GET['search'] ?? ''));
-$category = trim((string)($_GET['category'] ?? ''));
-$sort = (string)($_GET['sort'] ?? 'newest');
+$search = trim((string) ($_GET['search'] ?? ''));
+$category = trim((string) ($_GET['category'] ?? ''));
+$sort = (string) ($_GET['sort'] ?? 'newest');
 $allowedSorts = ['newest', 'price_asc', 'price_desc', 'name_asc'];
-if (!in_array($sort, $allowedSorts, true)) $sort = 'newest';
+if (!in_array($sort, $allowedSorts, true))
+    $sort = 'newest';
 $search = mb_substr($search, 0, 100);
 $category = substr($category, 0, 120);
 try {
     $repo = new ProductRepository(getStorage());
     $categories = $repo->getCategories();
     $products = $repo->search($search, $category, $sort);
-} catch (Throwable $e) { error_log($e->getMessage()); renderErrorPage(); }
+} catch (Throwable $e) {
+    error_log($e->getMessage());
+    renderErrorPage();
+}
 $pageTitle = 'Produtos';
 require __DIR__ . '/includes/header.php';
 ?>

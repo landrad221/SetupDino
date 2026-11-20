@@ -1,5 +1,5 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
+
 require_once __DIR__ . '/../includes/auth.php';
 requireAdmin();
 require_once __DIR__ . '/../config/database.php';
@@ -12,7 +12,8 @@ require __DIR__ . '/../includes/header.php';
 <section class="section">
     <div class="container">
         <div class="admin-layout">
-            <?php $managementIsAdmin = true; require __DIR__ . '/../includes/management-sidebar.php'; ?>
+            <?php $managementIsAdmin = true;
+            require __DIR__ . '/../includes/management-sidebar.php'; ?>
             <section class="admin-content">
                 <span class="eyebrow">Painel administrativo</span>
                 <h1>Visão geral</h1>
