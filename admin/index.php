@@ -1,26 +1,40 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . "/../includes/auth.php";
 requireAdmin();
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . "/../config/database.php";
+require_once __DIR__ . "/../includes/functions.php";
 
 $counts = getStorage()->getAdminDashboardCounts();
-$pageTitle = 'Administração';
-require __DIR__ . '/../includes/header.php';
+$pageTitle = "Administração";
+require __DIR__ . "/../includes/header.php";
 ?>
 <section class="section">
     <div class="container">
         <div class="admin-layout">
-            <?php $managementIsAdmin = true;
-            require __DIR__ . '/../includes/management-sidebar.php'; ?>
+            <?php
+            $managementIsAdmin = true;
+            require __DIR__ . "/../includes/management-sidebar.php";
+            ?>
             <section class="admin-content">
                 <span class="eyebrow">Painel administrativo</span>
                 <h1>Visão geral</h1>
                 <p class="muted">Gerencie o catálogo, vendedores, clientes e pedidos da SetupDino.</p>
                 <div class="metric-grid">
-                    <?php foreach (['products' => 'Produtos', 'orders' => 'Pedidos', 'sellers' => 'Vendedores', 'customers' => 'Clientes'] as $key => $label): ?>
-                        <article class="metric-card"><span><?= escape($label) ?></span><strong><?= $counts[$key] ?></strong></article>
+                    <?php foreach (
+                        [
+                            "products" => "Produtos",
+                            "orders" => "Pedidos",
+                            "sellers" => "Vendedores",
+                            "customers" => "Clientes",
+                        ]
+                        as $key => $label
+                    ): ?>
+                        <article class="metric-card"><span><?= escape(
+                            $label,
+                        ) ?></span><strong><?= $counts[
+    $key
+] ?></strong></article>
                     <?php endforeach; ?>
                 </div>
                 <div class="form-actions">
@@ -31,4 +45,4 @@ require __DIR__ . '/../includes/header.php';
         </div>
     </div>
 </section>
-<?php require __DIR__ . '/../includes/footer.php'; ?>
+<?php require __DIR__ . "/../includes/footer.php"; ?>

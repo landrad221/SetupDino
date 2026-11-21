@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="/assets/css/admin.css">
 <aside class="admin-sidebar">
-    <h2><?= $managementIsAdmin ? 'Administração' : 'Painel do vendedor' ?></h2>
+    <h2><?= $managementIsAdmin ? "Administração" : "Painel do vendedor" ?></h2>
     <?php if ($managementIsAdmin): ?>
         <a href="/admin/">Visão geral</a>
         <a href="/admin/products.php">Produtos</a>

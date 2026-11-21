@@ -2,9 +2,7 @@
 
 final class OrderService
 {
-    public function __construct(
-        private AppStorage $storage
-    ) {}
+    public function __construct(private AppStorage $storage) {}
 
     public function create(int $userId, array $cart, array $address): int
     {

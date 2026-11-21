@@ -12,3 +12,6 @@
 Thumbs.db
 *.csv
 .lock
+node_modules
+.prettierrc
+package*.json

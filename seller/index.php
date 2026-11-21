@@ -1,21 +1,23 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . "/../includes/auth.php";
 requireSeller();
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . "/../config/database.php";
+require_once __DIR__ . "/../includes/functions.php";
 
-$summary = getStorage()->getSellerSummary((int) $_SESSION['user_id']);
-$productCount = $summary['product_count'];
-$stockCount = $summary['stock_count'];
-$pageTitle = 'Painel do vendedor';
-require __DIR__ . '/../includes/header.php';
+$summary = getStorage()->getSellerSummary((int) $_SESSION["user_id"]);
+$productCount = $summary["product_count"];
+$stockCount = $summary["stock_count"];
+$pageTitle = "Painel do vendedor";
+require __DIR__ . "/../includes/header.php";
 ?>
 <section class="section">
     <div class="container">
         <div class="admin-layout">
-            <?php $managementIsAdmin = false;
-            require __DIR__ . '/../includes/management-sidebar.php'; ?>
+            <?php
+            $managementIsAdmin = false;
+            require __DIR__ . "/../includes/management-sidebar.php";
+            ?>
             <section class="admin-content">
                 <span class="eyebrow">Área do vendedor</span>
                 <h1>Seus produtos</h1>
@@ -29,4 +31,4 @@ require __DIR__ . '/../includes/header.php';
         </div>
     </div>
 </section>
-<?php require __DIR__ . '/../includes/footer.php'; ?>
+<?php require __DIR__ . "/../includes/footer.php"; ?>
