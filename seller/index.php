@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Painel protegido do vendedor com resumo do estoque.
 require_once __DIR__ . "/../includes/auth.php";
 requireSeller();
 require_once __DIR__ . "/../config/database.php";

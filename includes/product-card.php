@@ -1,5 +1,5 @@
 <?php
-// Expects $product from the calling template.
+// Partial reutilizável do cartão de produto; espera a variável $product fornecida pela página.
 $image = (string) ($product["image"] ?? "");
 $imagePath = __DIR__ . "/../assets/images/products/" . basename($image);
 $hasImage = $image !== "" && is_file($imagePath);

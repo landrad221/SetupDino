@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Formulário compartilhado de criação e edição usado pelos perfis administrador e vendedor.
 require_once __DIR__ . "/functions.php";
 require_once __DIR__ . "/../config/database.php";
 require_once __DIR__ . "/product-management.php";

@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Listagem e exclusão protegidas dos produtos pertencentes ao vendedor.
 require_once __DIR__ . "/../includes/auth.php";
 requireSeller();
 require_once __DIR__ . "/../config/database.php";

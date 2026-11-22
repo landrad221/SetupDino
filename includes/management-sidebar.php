@@ -13,3 +13,4 @@
         <a href="/seller/product-form.php">Adicionar produto</a>
     <?php endif; ?>
 </aside>
+<?php // Navegação compartilhada, exibida conforme perfil, nas áreas administrativas. ?>

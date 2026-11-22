@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Fluxo protegido de criação, alteração e exclusão de categorias.
 require_once __DIR__ . "/../includes/auth.php";
 requireAdmin();
 require_once __DIR__ . "/../config/database.php";

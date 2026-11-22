@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Página protegida de confirmação após o checkout.
 require_once __DIR__ . "/includes/auth.php";
 requireLogin();
 require_once __DIR__ . "/config/database.php";

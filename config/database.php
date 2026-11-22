@@ -1,11 +1,17 @@
 <?php declare(strict_types=1);
 
+// Inicialização do armazenamento: carrega ambiente e cria a instância compartilhada.
 require_once dirname(__DIR__) . "/vendor/autoload.php";
 Dotenv\Dotenv::createImmutable(dirname(__DIR__))->safeLoad();
 
 require_once dirname(__DIR__) . "/src/AppStorage.php";
 require_once dirname(__DIR__) . "/src/CsvStorage.php";
 
+/**
+ * Obtém a instância única de armazenamento da aplicação.
+ *
+ * @return AppStorage Implementação configurada de persistência.
+ */
 function getStorage(): AppStorage
 {
     static $storage = null;

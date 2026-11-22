@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Página protegida de checkout que cria um pedido a partir do carrinho.
 require_once __DIR__ . "/includes/auth.php";
 requireLogin();
 require_once __DIR__ . "/includes/functions.php";

@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Destrói a sessão autenticada atual.
 require_once __DIR__ . "/includes/auth.php";
 $_SESSION = [];
 session_regenerate_id(true);

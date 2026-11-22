@@ -1,5 +1,14 @@
 <?php declare(strict_types=1);
 
+// Validação de produtos, tratamento de imagens e operações de cadastro.
+/**
+ * Gera um slug único para um produto.
+ *
+ * @param AppStorage $storage Repositório usado para verificar nomes existentes.
+ * @param string $name Nome informado pelo usuário.
+ * @param int|null $productId Identificador do produto atual em edição ou null na criação.
+ * @return string Slug único, limitado a 200 caracteres.
+ */
 function productSlug(AppStorage $storage, string $name, ?int $productId): string
 {
     $slug = slugify($name, "product");
@@ -15,6 +24,14 @@ function productSlug(AppStorage $storage, string $name, ?int $productId): string
     }
 }
 
+/**
+ * Valida e salva uma imagem enviada por formulário.
+ *
+ * @param array<string,mixed> $upload Dados do arquivo vindos de $_FILES.
+ * @return string|null Nome gerado da imagem ou null quando não houve envio.
+ * @throws InvalidArgumentException Quando o arquivo é inválido.
+ * @throws RuntimeException Quando diretório ou arquivo não podem ser preparados.
+ */
 function receiveProductImage(array $upload): ?string
 {
     if (($upload["error"] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
@@ -78,6 +95,13 @@ function receiveProductImage(array $upload): ?string
     return $filename;
 }
 
+/**
+ * Remove uma imagem somente quando nenhum produto a referencia.
+ *
+ * @param AppStorage $storage Repositório usado para verificar referências.
+ * @param string|null $filename Nome do arquivo a verificar.
+ * @return void Não retorna valor; registra falhas no log.
+ */
 function removeUnusedProductImage(AppStorage $storage, ?string $filename): void
 {
     if ($filename === null || $filename === "") {
@@ -89,17 +113,25 @@ function removeUnusedProductImage(AppStorage $storage, ?string $filename): void
         }
     } catch (Throwable $e) {
         error_log(
-            "Unable to verify whether a product image is still referenced: " .
+            "Não foi possível verificar se a imagem do produto ainda é usada: " .
                 $e->getMessage(),
         );
         return;
     }
     $path = dirname(__DIR__) . "/assets/images/products/" . basename($filename);
     if (is_file($path) && !unlink($path)) {
-        error_log("Unable to remove unused product image.");
+        error_log("Não foi possível remover a imagem de produto não utilizada.");
     }
 }
 
+/**
+ * Exclui um produto administrável e remove sua imagem órfã.
+ *
+ * @param AppStorage $storage Repositório de persistência.
+ * @param int $productId Identificador do produto.
+ * @param int|null $sellerId Identificador do vendedor ou null para administrador.
+ * @return void Não retorna valor.
+ */
 function deleteManagedProduct(
     AppStorage $storage,
     int $productId,
@@ -109,6 +141,19 @@ function deleteManagedProduct(
     removeUnusedProductImage($storage, $image);
 }
 
+/**
+ * Valida os dados do formulário e cria ou atualiza um produto.
+ *
+ * @param AppStorage $storage Repositório de persistência.
+ * @param int $actorId Identificador da conta que executa a operação.
+ * @param bool $isAdmin Indica se o ator é administrador.
+ * @param int|null $productId Identificador em edição ou null na criação.
+ * @param array<string,mixed> $input Campos POST enviados pelo formulário.
+ * @param array<string,mixed> $upload Dados do arquivo enviado em $_FILES.
+ * @return void Não retorna valor; lança exceção em dados inválidos ou falha de persistência.
+ * @throws InvalidArgumentException Quando os dados ou permissões são inválidos.
+ * @throws Throwable Quando o armazenamento falha durante a operação.
+ */
 function saveManagedProduct(
     AppStorage $storage,
     int $actorId,
@@ -207,7 +252,7 @@ function saveManagedProduct(
                 dirname(__DIR__) . "/assets/images/products/" . $newImage;
             if (is_file($uploadedPath) && !unlink($uploadedPath)) {
                 error_log(
-                    "Unable to remove uploaded product image after a failed save.",
+                    "Não foi possível remover a imagem enviada após uma falha ao salvar.",
                 );
             }
         }

@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Listagem e exclusão protegidas de produtos pelo administrador.
 require_once __DIR__ . "/../includes/auth.php";
 requireAdmin();
 require_once __DIR__ . "/../config/database.php";

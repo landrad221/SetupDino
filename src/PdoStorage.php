@@ -1,7 +1,9 @@
 <?php declare(strict_types=1);
 
+// Implementação PDO da interface AppStorage.
 final class PdoStorage implements AppStorage
 {
+    // A implementação PDO mantém transações seguras nos pontos que exigem operações relacionadas.
     public function __construct(private PDO $db) {}
 
     public function findUserByEmail(string $email): ?array
@@ -286,7 +288,7 @@ final class PdoStorage implements AppStorage
             $products = $stmt->fetchAll();
             if (count($products) !== count($quantities)) {
                 throw new InvalidArgumentException(
-                    "A product is no longer available.",
+                    "Um produto não está mais disponível.",
                 );
             }
             $totalCents = 0;
@@ -294,7 +296,7 @@ final class PdoStorage implements AppStorage
                 $quantity = $quantities[(int) $product["id"]];
                 if ($quantity > (int) $product["stock"]) {
                     throw new InvalidArgumentException(
-                        "Not enough stock for " . $product["name"],
+                        "Estoque insuficiente para " . $product["name"],
                     );
                 }
                 $totalCents +=
@@ -327,7 +329,7 @@ final class PdoStorage implements AppStorage
                 $itemStmt->execute([$orderId, $productId, $quantity, $price]);
                 $stockStmt->execute([$quantity, $productId, $quantity]);
                 if ($stockStmt->rowCount() !== 1) {
-                    throw new RuntimeException("Stock changed. Please retry.");
+                    throw new RuntimeException("O estoque foi alterado. Tente novamente.");
                 }
             }
             $addressStmt = $this->db->prepare(
@@ -382,15 +384,22 @@ final class PdoStorage implements AppStorage
         $stmt->execute([$status, $orderId]);
     }
 
+    /**
+     * Normaliza e valida itens recebidos do carrinho.
+     *
+     * @param array<int,mixed> $cart Lista de itens com id e quantity.
+     * @return array<int,int> Mapa de ID do produto para quantidade.
+     * @throws InvalidArgumentException Quando o carrinho ou um item é inválido.
+     */
     private function normalizeCart(array $cart): array
     {
         if (!$cart || count($cart) > 50) {
-            throw new InvalidArgumentException("Cart is empty or too large.");
+            throw new InvalidArgumentException("O carrinho está vazio ou excede o limite.");
         }
         $quantities = [];
         foreach ($cart as $entry) {
             if (!is_array($entry)) {
-                throw new InvalidArgumentException("Invalid cart item.");
+                throw new InvalidArgumentException("Item inválido no carrinho.");
             }
             $productId = filter_var($entry["id"] ?? null, FILTER_VALIDATE_INT);
             $quantity = filter_var(
@@ -406,7 +415,7 @@ final class PdoStorage implements AppStorage
                 isset($quantities[$productId])
             ) {
                 throw new InvalidArgumentException(
-                    "Invalid product or quantity.",
+                    "Produto ou quantidade inválidos.",
                 );
             }
             $quantities[$productId] = $quantity;
@@ -414,10 +423,17 @@ final class PdoStorage implements AppStorage
         return $quantities;
     }
 
+    /**
+     * Converte preço com duas casas decimais para centavos inteiros.
+     *
+     * @param string $price Valor no formato decimal "123.45".
+     * @return int Valor inteiro em centavos.
+     * @throws RuntimeException Quando o formato armazenado é inválido.
+     */
     private function priceToCents(string $price): int
     {
         if (!preg_match('/^(\d+)\.(\d{2})$/', $price, $matches)) {
-            throw new RuntimeException("Invalid database price.");
+            throw new RuntimeException("Preço inválido no banco de dados.");
         }
         return (int) $matches[1] * 100 + (int) $matches[2];
     }

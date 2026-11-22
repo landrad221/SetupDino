@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Implementação CSV padrão de AppStorage, com uma tabela por entidade.
 final class CsvStorage implements AppStorage
 {
     private const COLUMNS = [
@@ -50,6 +51,7 @@ final class CsvStorage implements AppStorage
     private array $tables = [];
     private bool $active = false;
 
+    // Cada instância controla um diretório e lê as linhas CSV no primeiro acesso.
     public function __construct(private string $directory)
     {
         if (
@@ -58,7 +60,7 @@ final class CsvStorage implements AppStorage
             !is_dir($directory)
         ) {
             throw new RuntimeException(
-                "Could not create the CSV storage directory.",
+                "Não foi possível criar o diretório de armazenamento CSV.",
             );
         }
         $this->access(function (): void {
@@ -600,12 +602,12 @@ final class CsvStorage implements AppStorage
                 $product = $this->findRow("products", (int) $productId);
                 if (!$product) {
                     throw new InvalidArgumentException(
-                        "A product is no longer available.",
+                        "Um produto não está mais disponível.",
                     );
                 }
                 if ($quantity > (int) $product["stock"]) {
                     throw new InvalidArgumentException(
-                        "Not enough stock for " . $product["name"],
+                        "Estoque insuficiente para " . $product["name"],
                     );
                 }
                 $products[] = $product;
@@ -733,6 +735,7 @@ final class CsvStorage implements AppStorage
         }, true);
     }
 
+    // Serializa leituras e escritas, persistindo alterações em disco quando solicitado.
     private function access(callable $operation, bool $persist = false): mixed
     {
         if ($this->active) {
@@ -740,7 +743,7 @@ final class CsvStorage implements AppStorage
         }
         $lock = fopen($this->directory . DIRECTORY_SEPARATOR . ".lock", "c+b");
         if ($lock === false || !flock($lock, LOCK_EX)) {
-            throw new RuntimeException("Could not lock the CSV storage.");
+            throw new RuntimeException("Não foi possível bloquear o armazenamento CSV.");
         }
         $this->active = true;
         try {
@@ -758,6 +761,7 @@ final class CsvStorage implements AppStorage
         }
     }
 
+    // Lê em memória os esquemas conhecidos e todas as linhas dos arquivos CSV.
     private function readTables(): array
     {
         $tables = [];
@@ -775,7 +779,7 @@ final class CsvStorage implements AppStorage
         }
         $file = fopen($path, "rb");
         if ($file === false) {
-            throw new RuntimeException("Could not read CSV table: " . $table);
+            throw new RuntimeException("Não foi possível ler a tabela CSV: " . $table);
         }
         try {
             $header = fgetcsv($file, null, ",", '"', "");
@@ -835,6 +839,7 @@ final class CsvStorage implements AppStorage
         }
     }
 
+    // Grava as tabelas em memória com segurança adequada para uso em um único servidor PHP.
     private function writeTables(): void
     {
         foreach (self::COLUMNS as $table => $columns) {
@@ -843,7 +848,7 @@ final class CsvStorage implements AppStorage
             $file = fopen($temporary, "wb");
             if ($file === false) {
                 throw new RuntimeException(
-                    "Could not write CSV table: " . $table,
+                    "Não foi possível escrever a tabela CSV: " . $table,
                 );
             }
             try {
@@ -868,13 +873,13 @@ final class CsvStorage implements AppStorage
             if (is_file($backup) && !unlink($backup)) {
                 unlink($temporary);
                 throw new RuntimeException(
-                    "Could not replace the CSV backup file.",
+                    "Não foi possível substituir o arquivo de backup CSV.",
                 );
             }
             if (is_file($path) && !rename($path, $backup)) {
                 unlink($temporary);
                 throw new RuntimeException(
-                    "Could not replace CSV table: " . $table,
+                    "Não foi possível substituir a tabela CSV: " . $table,
                 );
             }
             if (!rename($temporary, $path)) {
@@ -883,7 +888,7 @@ final class CsvStorage implements AppStorage
                 }
                 unlink($temporary);
                 throw new RuntimeException(
-                    "Could not save CSV table: " . $table,
+                    "Não foi possível salvar a tabela CSV: " . $table,
                 );
             }
             if (is_file($backup)) {
@@ -892,6 +897,7 @@ final class CsvStorage implements AppStorage
         }
     }
 
+    // Cria categorias e produtos iniciais somente quando as tabelas do catálogo não existem.
     private function seedCatalog(): void
     {
         $now = $this->now();
@@ -1018,15 +1024,22 @@ final class CsvStorage implements AppStorage
         return $maximum + 1;
     }
 
+    /**
+     * Normaliza e valida itens recebidos do carrinho.
+     *
+     * @param array<int,mixed> $cart Lista de itens com id e quantity.
+     * @return array<int,int> Mapa de ID do produto para quantidade.
+     * @throws InvalidArgumentException Quando o carrinho ou um item é inválido.
+     */
     private function normalizeCart(array $cart): array
     {
         if (!$cart || count($cart) > 50) {
-            throw new InvalidArgumentException("Cart is empty or too large.");
+            throw new InvalidArgumentException("O carrinho está vazio ou excede o limite.");
         }
         $quantities = [];
         foreach ($cart as $entry) {
             if (!is_array($entry)) {
-                throw new InvalidArgumentException("Invalid cart item.");
+                throw new InvalidArgumentException("Item inválido no carrinho.");
             }
             $productId = filter_var($entry["id"] ?? null, FILTER_VALIDATE_INT);
             $quantity = filter_var(
@@ -1042,7 +1055,7 @@ final class CsvStorage implements AppStorage
                 isset($quantities[$productId])
             ) {
                 throw new InvalidArgumentException(
-                    "Invalid product or quantity.",
+                    "Produto ou quantidade inválidos.",
                 );
             }
             $quantities[$productId] = $quantity;
@@ -1050,10 +1063,17 @@ final class CsvStorage implements AppStorage
         return $quantities;
     }
 
+    /**
+     * Converte preço com duas casas decimais para centavos inteiros.
+     *
+     * @param string $price Valor no formato decimal "123.45".
+     * @return int Valor inteiro em centavos.
+     * @throws RuntimeException Quando o formato armazenado é inválido.
+     */
     private function priceToCents(string $price): int
     {
         if (!preg_match('/^(\d+)\.(\d{2})$/', $price, $matches)) {
-            throw new RuntimeException("Invalid CSV price.");
+            throw new RuntimeException("Preço inválido no arquivo CSV.");
         }
         return (int) $matches[1] * 100 + (int) $matches[2];
     }

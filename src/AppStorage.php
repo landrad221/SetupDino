@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Contrato de persistência compartilhado pelas implementações CSV e PDO.
 interface AppStorage
 {
     public function findUserByEmail(string $email): ?array;

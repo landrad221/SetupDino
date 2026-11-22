@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  // Persistência e apresentação do carrinho são executadas integralmente no navegador.
   const KEY = 'SetupDino_cart_v1';
   function read() { try { const data=JSON.parse(localStorage.getItem(KEY)||'[]'); return Array.isArray(data)?data.filter(x=>Number.isInteger(x.id)&&x.id>0&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=99).slice(0,50):[]; } catch { return []; } }
   function save(items) { localStorage.setItem(KEY, JSON.stringify(items)); document.dispatchEvent(new Event('cart:updated')); }

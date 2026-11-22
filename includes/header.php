@@ -1,4 +1,5 @@
 <?php
+// Cabeçalho compartilhado: documento, marca, menu hambúrguer e links conforme perfil.
 require_once __DIR__ . "/functions.php";
 require_once __DIR__ . "/auth.php";
 $pageTitle = $pageTitle ?? "SetupDino";
@@ -10,8 +11,11 @@ $pageTitle = $pageTitle ?? "SetupDino";
 <script src="<?= escape(asset("js/cart.js")) ?>" defer></script>
 </head><body>
 <header class="site-header"><nav class="navbar container" aria-label="Navegação principal">
+<div class="header-brand">
+<a href="/" class="header-logo" aria-label="SetupDino — página inicial"><img src="<?= escape(asset("images/logo.png")) ?>" alt=""></a>
 <a href="/" class="logo" aria-label="SetupDino — página inicial">Setup<span>Dino</span></a>
-<button class="menu-toggle" type="button" aria-label="Abrir ou fechar navegação" aria-expanded="false" aria-controls="main-nav" data-menu-toggle>☰</button>
+</div>
+<button class="menu-toggle" type="button" aria-label="Abrir ou fechar navegação" aria-expanded="false" aria-controls="main-nav" data-menu-toggle><span></span><span></span><span></span></button>
 <div class="nav-links" id="main-nav" data-menu><a href="/">Início</a><a href="/products.php">Produtos</a><a href="/cart.php">Carrinho (<span data-cart-count>0</span>)</a>
 <?php if (
     isLoggedIn()

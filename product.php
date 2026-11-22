@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Página pública com os detalhes do produto.
 require_once __DIR__ . "/config/database.php";
 require_once __DIR__ . "/src/ProductRepository.php";
 require_once __DIR__ . "/includes/functions.php";
