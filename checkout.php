@@ -74,9 +74,9 @@ $fieldLabels = [
     "city" => "Cidade",
     "state" => "Estado (UF)",
 ];
-foreach ($fields as $field => $max): ?><label><?=
-escape($fieldLabels[$field])
-$field === "complement" ? " (opcional)" : ""
+foreach ($fields as $field => $max): 
+?><label><?=
+escape($fieldLabels[$field])  . ($field === "complement" ? " (opcional)" : "")  
 ?><input name="<?= escape($field) ?>" maxlength="<?= $max ?>" value="<?= escape(
     $_POST[$field] ?? "",
 ) ?>" <?= $field === "complement" ? "" : "required" ?>></label><?php endforeach;

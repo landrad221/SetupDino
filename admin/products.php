@@ -59,7 +59,7 @@ require __DIR__ . "/../includes/header.php";
                     <?php foreach ($products as $product): ?><tr>
                         <td><?=
                         escape($product["name"])
-                        $product["featured"] ? " · Destaque" : ""
+                        . ($product["featured"] ? " · Destaque" : "")
                         ?></td>
                         <td><?= escape($product["category_name"]) ?></td>
                         <td><?= escape(
