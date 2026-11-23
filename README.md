@@ -34,28 +34,14 @@ O SetupDino é uma loja em PHP para periféricos e móveis gamers. Inclui catál
 ## Requisitos
 
 - PHP 8.1 ou superior
-- Composer
-- Driver PDO opcional para um armazenamento compatível
 - Servidor web local apontando para a raiz do repositório
 
 ## Instalação
 
-1. Instale as dependências:
-
-   ```bash
-   composer install
-   npm install
+1. Extraia o conteudo na raiz do diretório do apache
    ```
 
-2. Execute o projeto com PHP:
-
-   ```bash
-   php -S 127.0.0.1:8080 -t /srv/http
-   ```
-
-3. Abra `http://127.0.0.1:8080`.
-
-A aplicação não precisa de credenciais de banco no modo CSV padrão.
+2. Execute o servidor e abra no endereco correspondente. Ex : http://localhost
 
 ## Configuração do armazenamento
 
@@ -90,27 +76,6 @@ Mantenha esses arquivos fora da pasta pública ou bloqueie o acesso HTTP direto.
 - Operações PDO usam consultas preparadas.
 - Páginas administrativas e de vendedores exigem validação do perfil no servidor.
 
-## Desenvolvimento
-
-Formate os arquivos suportados com a configuração Prettier:
-
-```bash
-npm run prettier -- .
-```
-
-Valide os arquivos PHP:
-
-```bash
-find . -path './vendor' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
-```
-
-Valide a sintaxe JavaScript:
-
-```bash
-node --check assets/js/catalog.js
-node --check assets/js/cart.js
-node --check assets/js/admin.js
-```
 
 ## Convenções de contribuição
 
@@ -120,3 +85,12 @@ node --check assets/js/admin.js
 - Escape saída não confiável com `escape()`.
 - Escreva comentários sobre intenção, invariantes e comportamento não óbvio.
 - Não edite arquivos em `vendor/`.
+
+## Autores
+
+- Lucas Araújo de Andrade       - RA - 202602192527
+- Acacio Brito Dos Santos       - RA - 202601518461
+- Vitor Daniel Silva dos Santos - RA – 202602795787
+- Thauany Riatto                - RA - 202603589102 
+- Fabiano Miranda da Silva      - RA - 202602189372
+
