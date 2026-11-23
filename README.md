@@ -51,6 +51,7 @@ O armazenamento padrão é `CsvStorage`.
 - Caminhos relativos são resolvidos a partir da pasta do projeto.
 - Sem `CSV_STORAGE_PATH`, é usado `<pai-da-pasta-publica>/setupdino-csv`.
 - Os arquivos CSV devem permitir escrita pelo processo PHP.
+- O primeiro usuario cadastrado vira administrador e ganha acesso ao painel administrativo.
 
 Em instalações com banco, implemente ou selecione uma implementação de `AppStorage` e atualize `config/database.php`. `PdoStorage` está disponível para conexões PDO.
 
