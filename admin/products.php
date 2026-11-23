@@ -66,7 +66,15 @@ require __DIR__ . "/../includes/header.php";
                         <td><?= escape(
                             $product["seller_name"] ?? "SetupDino",
                         ) ?></td>
-                        <td><?= formatPrice($product["price"]) ?></td>
+                        <td><?php if (!empty(
+                            $product["promotion_price"]
+                        )): ?><del class="regular-price"><?= formatPrice(
+    $product["price"],
+) ?></del><br><strong><?= formatPrice(
+    $product["promotion_price"],
+) ?></strong><?php else: ?><?= formatPrice(
+    $product["price"],
+) ?><?php endif; ?></td>
                         <td><?= (int) $product["stock"] ?></td>
                         <td class="table-actions"><a class="btn btn-outline" href="/admin/product-form.php?id=<?= (int) $product[
                             "id"

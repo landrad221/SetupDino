@@ -16,6 +16,7 @@ if (isset($_GET["id"])) {
     $productId = $validatedId;
 }
 $product = null;
+$promotionPrice = null;
 $error = "";
 if ($productId !== null) {
     $product = $db->getManagedProduct(
@@ -25,6 +26,9 @@ if ($productId !== null) {
     if (!$product) {
         http_response_code(404);
         exit("Produto não encontrado ou sem permissão para editá-lo.");
+    }
+    if ($productFormAdmin && $db instanceof CsvStorage) {
+        $promotionPrice = $db->getPromotionPrice($productId);
     }
 }
 
@@ -110,6 +114,28 @@ require __DIR__ . "/header.php";
                             ) ?>">
                         </label>
                     </div>
+                    <?php if (
+                        $productFormAdmin && $db instanceof CsvStorage
+                    ): ?>
+                        <fieldset class="promotion-fields">
+                            <legend>Promoção</legend>
+                            <label class="checkbox-label"><input type="checkbox" name="promotion_enabled" value="1" <?= ($_SERVER[
+                                    "REQUEST_METHOD"
+                                ] === "POST"
+                                    ? ($_POST["promotion_enabled"] ?? "") === "1"
+                                    : $promotionPrice !== null)
+                                ? "checked"
+                                : "" ?>> Ativar preço promocional</label>
+                            <label>Preço promocional (R$)
+                                <input name="promotion_price" type="number" min="0.01" max="99999999.99" step="0.01" value="<?= escape(
+                                    (string) ($_POST["promotion_price"] ??
+                                        $promotionPrice ??
+                                        ""),
+                                ) ?>">
+                            </label>
+                            <p class="muted">O preço promocional deve ser menor que o preço normal. Desmarque a opção para remover a promoção.</p>
+                        </fieldset>
+                    <?php endif; ?>
                     <label>Foto do produto (JPG, PNG, WebP ou GIF; até 5 MB)
                         <input name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
                     </label>

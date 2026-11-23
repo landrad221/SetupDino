@@ -3,6 +3,8 @@
 $image = (string) ($product["image"] ?? "");
 $imagePath = __DIR__ . "/../assets/images/products/" . basename($image);
 $hasImage = $image !== "" && is_file($imagePath);
+$regularPriceCents = (int) round((float) $product["price"] * 100);
+$currentPrice = $product["promotion_price"] ?? $product["price"];
 ?>
 <article class="product-card">
     <a class="product-visual" href="/product.php?id=<?= (int) $product[
@@ -18,15 +20,25 @@ $hasImage = $image !== "" && is_file($imagePath);
         <span class="eyebrow"><?= escape(
             $product["category_name"] ?? "Acessórios gamer",
         ) ?></span>
+        <?php if (!empty($product["promotion_price"])): ?>
+            <span class="promotion-badge">Oferta</span>
+        <?php endif; ?>
         <h3><a href="/product.php?id=<?= (int) $product["id"] ?>"><?= escape(
     $product["name"],
 ) ?></a></h3>
         <p class="product-description"><?= escape(
             $product["description"] ?? "",
         ) ?></p>
-        <div class="product-meta"><strong class="product-price"><?= formatPrice(
-            $product["price"],
-        ) ?></strong><span class="stock <?= (int) $product["stock"] > 0
+        <div class="product-meta"><div class="product-prices">
+            <?php if (!empty($product["promotion_price"])): ?>
+                <del class="regular-price"><?= formatPrice(
+                    $product["price"],
+                ) ?></del>
+            <?php endif; ?>
+            <strong class="product-price"><?= formatPrice(
+                $currentPrice,
+            ) ?></strong>
+        </div><span class="stock <?= (int) $product["stock"] > 0
     ? "available"
     : "unavailable" ?>"><?= (int) $product["stock"] > 0
     ? "Em estoque"
@@ -39,10 +51,10 @@ $hasImage = $image !== "" && is_file($imagePath);
 ] ?>" data-name="<?= escape(
     $product["name"],
 ) ?>" data-price-cents="<?= (int) round(
-    (float) $product["price"] * 100,
-) ?>" data-stock="<?= (int) $product["stock"] ?>" <?= (int) $product[
+    (float) $currentPrice * 100,
+) ?>" data-regular-price-cents="<?= $regularPriceCents ?>" data-stock="<?= (int) $product[
     "stock"
-] === 0
+] ?>" <?= (int) $product["stock"] === 0
     ? "disabled"
     : "" ?>>Adicionar ao carrinho</button></div>
     </div>

@@ -201,10 +201,43 @@ function saveManagedProduct(
             "Informe um preço válido, com até duas casas decimais.",
         );
     }
+    $priceCents = productPriceToCents($price);
+    $promotionPrice = null;
+    if ($isAdmin && ($input["promotion_enabled"] ?? "") === "1") {
+        $rawPromotionPrice = trim(
+            (string) ($input["promotion_price"] ?? ""),
+        );
+        if (!preg_match('/^\d{1,8}(?:\.\d{1,2})?$/', $rawPromotionPrice)) {
+            throw new InvalidArgumentException(
+                "Informe um preço promocional válido.",
+            );
+        }
+        $promotionCents = productPriceToCents($rawPromotionPrice);
+        if ($promotionCents < 1 || $promotionCents >= $priceCents) {
+            throw new InvalidArgumentException(
+                "O preço promocional deve ser maior que zero e menor que o preço normal.",
+            );
+        }
+        $promotionPrice =
+            intdiv($promotionCents, 100) .
+            "." .
+            str_pad((string) ($promotionCents % 100), 2, "0", STR_PAD_LEFT);
+    }
     if ($stock === false || $stock < 0 || $stock > 2147483647) {
         throw new InvalidArgumentException(
             "Informe uma quantidade válida em estoque.",
         );
+    }
+    if (!$isAdmin && $storage instanceof CsvStorage && $productId !== null) {
+        $currentPromotion = $storage->getPromotionPrice($productId);
+        if (
+            $currentPromotion !== null &&
+            productPriceToCents($currentPromotion) >= $priceCents
+        ) {
+            throw new InvalidArgumentException(
+                "O preço normal deve permanecer acima da promoção ativa. Peça ao administrador para remover ou ajustar a promoção.",
+            );
+        }
     }
     $categoryExists = false;
     foreach ($storage->listCategories() as $category) {
@@ -236,7 +269,7 @@ function saveManagedProduct(
         : (int) ($existing["featured"] ?? 0);
 
     try {
-        $storage->saveProduct($productId, $isAdmin ? null : $actorId, [
+        $product = [
             "category_id" => $categoryId,
             "name" => $name,
             "slug" => $slug,
@@ -245,7 +278,20 @@ function saveManagedProduct(
             "stock" => $stock,
             "image" => $image,
             "featured" => $featured,
-        ]);
+        ];
+        if ($isAdmin && $storage instanceof CsvStorage) {
+            $storage->saveProductWithPromotion(
+                $productId,
+                $product,
+                $promotionPrice,
+            );
+        } else {
+            $storage->saveProduct(
+                $productId,
+                $isAdmin ? null : $actorId,
+                $product,
+            );
+        }
     } catch (Throwable $e) {
         if ($newImage !== null) {
             $uploadedPath =
@@ -256,6 +302,7 @@ function saveManagedProduct(
                 );
             }
         }
+
         throw $e;
     }
 
@@ -263,4 +310,10 @@ function saveManagedProduct(
     if ($oldImage && $oldImage !== $image) {
         removeUnusedProductImage($storage, $oldImage);
     }
+}
+
+function productPriceToCents(string $price): int
+{
+    [$whole, $fraction] = array_pad(explode(".", $price, 2), 2, "");
+    return (int) $whole * 100 + (int) str_pad($fraction, 2, "0");
 }

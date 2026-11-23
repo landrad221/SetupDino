@@ -20,6 +20,8 @@ if (!$product) {
     exit("Produto não encontrado.");
 }
 $image = (string) ($product["image"] ?? "");
+$regularPriceCents = (int) round((float) $product["price"] * 100);
+$currentPrice = $product["promotion_price"] ?? $product["price"];
 $hasImage =
     $image !== "" &&
     is_file(__DIR__ . "/assets/images/products/" . basename($image));
@@ -38,9 +40,13 @@ require __DIR__ . "/includes/header.php";
     $product["name"],
 ) ?></h1><p class="muted"><?= nl2br(
     escape($product["description"] ?? ""),
-) ?></p><p class="detail-price"><?= formatPrice(
+) ?></p><?php if (!empty($product["promotion_price"])): ?><p class="promotion-badge">Oferta</p><?php endif; ?><div class="detail-prices"><?php if (!empty(
+    $product["promotion_price"]
+)): ?><del class="regular-price"><?= formatPrice(
     $product["price"],
-) ?></p><p class="stock <?= (int) $product["stock"] > 0
+) ?></del><?php endif; ?><p class="detail-price"><?= formatPrice(
+    $currentPrice,
+) ?></p></div><p class="stock <?= (int) $product["stock"] > 0
     ? "available"
     : "unavailable" ?>"><?= (int) $product["stock"] > 0
     ? (int) $product["stock"] . " em estoque"
@@ -49,10 +55,10 @@ require __DIR__ . "/includes/header.php";
 ] ?>" data-name="<?= escape(
     $product["name"],
 ) ?>" data-price-cents="<?= (int) round(
-    (float) $product["price"] * 100,
-) ?>" data-stock="<?= (int) $product["stock"] ?>" <?= (int) $product[
+    (float) $currentPrice * 100,
+) ?>" data-regular-price-cents="<?= $regularPriceCents ?>" data-stock="<?= (int) $product[
     "stock"
-] === 0
+] ?>" <?= (int) $product["stock"] === 0
     ? "disabled"
     : "" ?>>Adicionar ao carrinho</button><a class="btn btn-outline" href="/products.php">Continuar comprando</a></div>
 </div></div></section>

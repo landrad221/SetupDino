@@ -21,7 +21,9 @@ final class ProductRepository
      */
     public function getFeaturedProducts(int $limit = 8): array
     {
-        return $this->storage->getFeaturedProducts($limit);
+        return $this->withPromotions(
+            $this->storage->getFeaturedProducts($limit),
+        );
     }
 
     /**
@@ -37,7 +39,9 @@ final class ProductRepository
         string $category = "",
         string $sort = "newest",
     ): array {
-        return $this->storage->searchProducts($search, $category, $sort);
+        return $this->withPromotions(
+            $this->storage->searchProducts($search, $category, $sort),
+        );
     }
 
     /**
@@ -59,7 +63,10 @@ final class ProductRepository
      */
     public function getById(int $id): ?array
     {
-        return $this->storage->getProductById($id);
+        $product = $this->storage->getProductById($id);
+        return $product === null
+            ? null
+            : ($this->withPromotions([$product])[0] ?? $product);
     }
 
     /**
@@ -70,5 +77,27 @@ final class ProductRepository
     public function getCategories(): array
     {
         return $this->storage->listCategories();
+    }
+
+    /**
+     * Adiciona preços promocionais CSV sem alterar o contrato compartilhado.
+     *
+     * @param array<int,array<string,mixed>> $products Produtos a complementar.
+     * @return array<int,array<string,mixed>> Produtos com promoções ativas.
+     */
+    private function withPromotions(array $products): array
+    {
+        if (!$this->storage instanceof CsvStorage || !$products) {
+            return $products;
+        }
+        $prices = $this->storage->getPromotionPrices(
+            array_column($products, "id"),
+        );
+        foreach ($products as &$product) {
+            $product["promotion_price"] =
+                $prices[(int) $product["id"]] ?? null;
+        }
+        unset($product);
+        return $products;
     }
 }

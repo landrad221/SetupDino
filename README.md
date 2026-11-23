@@ -6,7 +6,8 @@ O SetupDino é uma loja em PHP para periféricos e móveis gamers. Inclui catál
 
 - Cadastro, login, logout e acesso baseado em função
 - Catálogo de produtos com filtros por categoria e texto
-- Produtos em destaque e páginas detalhadas
+- Promoções gerenciadas pelo administrador, com preço normal e preço promocional
+- Páginas detalhadas de produtos
 - Carrinho no navegador com limite de estoque
 - Checkout e confirmação de pedido
 - Painel administrativo para produtos, categorias, clientes, vendedores e pedidos
@@ -18,7 +19,7 @@ O SetupDino é uma loja em PHP para periféricos e móveis gamers. Inclui catál
 | Caminho | Finalidade |
 | --- | --- |
 | `index.php` | Página inicial pública da loja |
-| `products.php`, `product.php` | Catálogo e detalhes de produto |
+| `products.php`, `product.php`, `promotions.php` | Catálogo, detalhes e promoções ativas |
 | `cart.php`, `checkout.php`, `order-success.php` | Fluxo de compra e pedido |
 | `login.php`, `register.php`, `logout.php` | Fluxo de conta do cliente |
 | `includes/` | Layout compartilhado, autenticação e funções de apresentação |
@@ -39,7 +40,6 @@ O SetupDino é uma loja em PHP para periféricos e móveis gamers. Inclui catál
 ## Instalação
 
 1. Extraia o conteudo na raiz do diretório do apache
-   ```
 
 2. Execute o servidor e abra no endereco correspondente. Ex : http://localhost
 
@@ -61,6 +61,7 @@ O diretório CSV contém registros como:
 - `users.csv`
 - `categories.csv`
 - `products.csv`
+- `promotions.csv` (preços promocionais, sem alterar o esquema de `products.csv`)
 - `orders.csv`
 - `order_items.csv`
 - `order_addresses.csv`

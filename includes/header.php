@@ -16,7 +16,7 @@ $pageTitle = $pageTitle ?? "SetupDino";
 <a href="/" class="logo" aria-label="SetupDino — página inicial">Setup<span>Dino</span></a>
 </div>
 <button class="menu-toggle" type="button" aria-label="Abrir ou fechar navegação" aria-expanded="false" aria-controls="main-nav" data-menu-toggle><span></span><span></span><span></span></button>
-<div class="nav-links" id="main-nav" data-menu><a href="/">Início</a><a href="/products.php">Produtos</a><a href="/cart.php">Carrinho (<span data-cart-count>0</span>)</a>
+<div class="nav-links" id="main-nav" data-menu><a href="/">Início</a><a href="/products.php">Produtos</a><a href="/promotions.php">Promoções</a><a href="/cart.php">Carrinho (<span data-cart-count>0</span>)</a>
 <?php if (
     isLoggedIn()
 ): ?><a href="/logout.php">Sair</a><?php else: ?><a href="/login.php">Entrar</a><a href="/register.php">Criar conta</a><?php endif; ?>

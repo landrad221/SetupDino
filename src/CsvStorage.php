@@ -49,6 +49,7 @@ final class CsvStorage implements AppStorage
     ];
 
     private array $tables = [];
+    private array $promotions = [];
     private bool $active = false;
 
     // Cada instância controla um diretório e lê as linhas CSV no primeiro acesso.
@@ -411,47 +412,70 @@ final class CsvStorage implements AppStorage
         ?int $sellerId,
         array $product,
     ): void {
-        $this->access(function () use ($productId, $sellerId, $product): void {
-            if (!$this->findRow("categories", (int) $product["category_id"])) {
-                throw new InvalidArgumentException(
-                    "A categoria selecionada não existe.",
-                );
-            }
-            foreach ($this->tables["products"] as $existing) {
-                if (
-                    $existing["slug"] === $product["slug"] &&
-                    (int) $existing["id"] !== $productId
-                ) {
-                    throw new PDOException("Duplicate product slug.");
-                }
-            }
-            $product["price"] = number_format(
-                (float) $product["price"],
-                2,
-                ".",
-                "",
-            );
-            if ($productId === null) {
-                $product["seller_id"] = $sellerId;
-                $product["id"] = $this->nextId("products");
-                $product["created_at"] = $this->now();
-                $this->tables["products"][] = $product;
+        $this->access(
+            fn() => $this->storeProduct($productId, $sellerId, $product),
+            true,
+        );
+    }
+
+    public function saveProductWithPromotion(
+        ?int $productId,
+        array $product,
+        ?string $promotionPrice,
+    ): void {
+        $this->access(function () use (
+            $productId,
+            $product,
+            $promotionPrice,
+        ): void {
+            $savedProductId = $this->storeProduct($productId, null, $product);
+            if ($promotionPrice === null) {
+                unset($this->promotions[$savedProductId]);
                 return;
             }
-            foreach ($this->tables["products"] as &$existing) {
-                if (
-                    (int) $existing["id"] === $productId &&
-                    ($sellerId === null ||
-                        (int) ($existing["seller_id"] ?? 0) === $sellerId)
-                ) {
-                    $existing = array_merge($existing, $product, [
-                        "id" => $productId,
-                    ]);
-                    break;
-                }
+            $savedProduct = $this->findRow("products", $savedProductId);
+            if (!$savedProduct) {
+                throw new RuntimeException(
+                    "Não foi possível localizar o produto salvo.",
+                );
             }
-            unset($existing);
+            $promotionCents = preg_match(
+                '/^\d{1,8}\.\d{2}$/',
+                $promotionPrice,
+            )
+                ? $this->priceToCents($promotionPrice)
+                : 0;
+            $regularCents = $this->priceToCents(
+                (string) $savedProduct["price"],
+            );
+            if (
+                $promotionCents < 1 ||
+                $promotionCents >= $regularCents
+            ) {
+                throw new InvalidArgumentException(
+                    "O preço promocional deve ser menor que o preço normal.",
+                );
+            }
+            $this->promotions[$savedProductId] = $promotionPrice;
         }, true);
+    }
+
+    public function getPromotionPrice(int $productId): ?string
+    {
+        return $this->access(
+            fn(): ?string => $this->promotions[$productId] ?? null,
+        );
+    }
+
+    public function getPromotionPrices(array $productIds): array
+    {
+        return $this->access(function () use ($productIds): array {
+            $selected = array_fill_keys(
+                array_map("intval", $productIds),
+                true,
+            );
+            return array_intersect_key($this->promotions, $selected);
+        });
     }
 
     public function deleteProduct(int $productId, ?int $sellerId): ?string
@@ -481,6 +505,7 @@ final class CsvStorage implements AppStorage
                         $productId,
                 ),
             );
+            unset($this->promotions[$productId]);
             return $product["image"];
         }, true);
     }
@@ -516,6 +541,9 @@ final class CsvStorage implements AppStorage
                     "id" => $product["id"],
                     "name" => $product["name"],
                     "price" => $product["price"],
+                    "promotion_price" => $this->promotions[
+                        (int) $product["id"]
+                    ] ?? null,
                     "stock" => $product["stock"],
                     "featured" => $product["featured"],
                     "category_name" => $category["name"],
@@ -614,8 +642,11 @@ final class CsvStorage implements AppStorage
             }
             $totalCents = 0;
             foreach ($products as $product) {
+                $productId = (int) $product["id"];
+                $unitPrice = $this->promotions[$productId] ??
+                    (string) $product["price"];
                 $totalCents +=
-                    $this->priceToCents((string) $product["price"]) *
+                    $this->priceToCents($unitPrice) *
                     $quantities[(int) $product["id"]];
             }
             $orderId = $this->nextId("orders");
@@ -629,13 +660,15 @@ final class CsvStorage implements AppStorage
             foreach ($products as $product) {
                 $productId = (int) $product["id"];
                 $quantity = $quantities[$productId];
+                $unitPrice = $this->promotions[$productId] ??
+                    (string) $product["price"];
                 $this->tables["order_items"][] = [
                     "id" => $this->nextId("order_items"),
                     "order_id" => $orderId,
                     "product_id" => $productId,
                     "quantity" => $quantity,
                     "unit_price" => number_format(
-                        $this->priceToCents((string) $product["price"]) / 100,
+                        $this->priceToCents($unitPrice) / 100,
                         2,
                         ".",
                         "",
@@ -748,6 +781,7 @@ final class CsvStorage implements AppStorage
         $this->active = true;
         try {
             $this->tables = $this->readTables();
+            $this->promotions = $this->readPromotions();
             $result = $operation();
             if ($persist) {
                 $this->writeTables();
@@ -755,6 +789,7 @@ final class CsvStorage implements AppStorage
             return $result;
         } finally {
             $this->tables = [];
+            $this->promotions = [];
             $this->active = false;
             flock($lock, LOCK_UN);
             fclose($lock);
@@ -894,6 +929,163 @@ final class CsvStorage implements AppStorage
             if (is_file($backup)) {
                 unlink($backup);
             }
+        }
+        $this->writePromotions();
+    }
+
+    private function storeProduct(
+        ?int $productId,
+        ?int $sellerId,
+        array $product,
+    ): int {
+        if (!$this->findRow("categories", (int) $product["category_id"])) {
+            throw new InvalidArgumentException(
+                "A categoria selecionada não existe.",
+            );
+        }
+        foreach ($this->tables["products"] as $existing) {
+            if (
+                $existing["slug"] === $product["slug"] &&
+                (int) $existing["id"] !== $productId
+            ) {
+                throw new PDOException("Duplicate product slug.");
+            }
+        }
+        $product["price"] = number_format(
+            (float) $product["price"],
+            2,
+            ".",
+            "",
+        );
+        if ($productId === null) {
+            $product["seller_id"] = $sellerId;
+            $product["id"] = $this->nextId("products");
+            $product["created_at"] = $this->now();
+            $this->tables["products"][] = $product;
+            return (int) $product["id"];
+        }
+        foreach ($this->tables["products"] as &$existing) {
+            if (
+                (int) $existing["id"] === $productId &&
+                ($sellerId === null ||
+                    (int) ($existing["seller_id"] ?? 0) === $sellerId)
+            ) {
+                $existing = array_merge($existing, $product, [
+                    "id" => $productId,
+                ]);
+                unset($existing);
+                return $productId;
+            }
+        }
+        unset($existing);
+        throw new InvalidArgumentException(
+            "O produto não foi encontrado ou não pertence a esta conta.",
+        );
+    }
+
+    private function readPromotions(): array
+    {
+        $path = $this->path("promotions");
+        if (!is_file($path)) {
+            return [];
+        }
+        $file = fopen($path, "rb");
+        if ($file === false) {
+            throw new RuntimeException(
+                "Não foi possível ler o arquivo de promoções CSV.",
+            );
+        }
+        try {
+            $header = fgetcsv($file, null, ",", '"', "");
+            if ($header !== ["product_id", "promotional_price"]) {
+                throw new RuntimeException(
+                    "O cabeçalho do arquivo de promoções CSV é inválido.",
+                );
+            }
+            $promotions = [];
+            while (($row = fgetcsv($file, null, ",", '"', "")) !== false) {
+                if ($row === [null]) {
+                    continue;
+                }
+                if (
+                    count($row) !== 2 ||
+                    !ctype_digit((string) $row[0]) ||
+                    (int) $row[0] < 1 ||
+                    !preg_match('/^\d{1,8}\.\d{2}$/', (string) $row[1])
+                ) {
+                    throw new RuntimeException(
+                        "Há uma promoção inválida no arquivo CSV.",
+                    );
+                }
+                $productId = (int) $row[0];
+                if (isset($promotions[$productId])) {
+                    throw new RuntimeException(
+                        "Há promoções duplicadas para um produto no arquivo CSV.",
+                    );
+                }
+                $promotions[$productId] = (string) $row[1];
+            }
+            return $promotions;
+        } finally {
+            fclose($file);
+        }
+    }
+
+    private function writePromotions(): void
+    {
+        $path = $this->path("promotions");
+        $temporary = $path . "." . bin2hex(random_bytes(6)) . ".tmp";
+        $file = fopen($temporary, "wb");
+        if ($file === false) {
+            throw new RuntimeException(
+                "Não foi possível escrever o arquivo de promoções CSV.",
+            );
+        }
+        try {
+            fputcsv(
+                $file,
+                ["product_id", "promotional_price"],
+                ",",
+                '"',
+                "",
+            );
+            ksort($this->promotions, SORT_NUMERIC);
+            foreach ($this->promotions as $productId => $price) {
+                fputcsv(
+                    $file,
+                    [$productId, $price],
+                    ",",
+                    '"',
+                    "",
+                );
+            }
+        } finally {
+            fclose($file);
+        }
+        $backup = $path . ".bak";
+        if (is_file($backup) && !unlink($backup)) {
+            unlink($temporary);
+            throw new RuntimeException(
+                "Não foi possível substituir o backup das promoções.",
+            );
+        }
+        if (is_file($path) && !rename($path, $backup)) {
+            unlink($temporary);
+            throw new RuntimeException(
+                "Não foi possível substituir o arquivo de promoções CSV.",
+            );
+        }
+        if (!rename($temporary, $path)) {
+            if (is_file($backup)) {
+                rename($backup, $path);
+            }
+            unlink($temporary);
+            throw new RuntimeException(
+                "Não foi possível salvar o arquivo de promoções CSV.",
+            );
+        }
+        if (is_file($backup)) {
+            unlink($backup);
         }
     }
 
