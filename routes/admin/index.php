@@ -1,9 +1,14 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/../includes/auth.php';
+if (realpath((string)($_SERVER['SCRIPT_FILENAME'] ?? '')) === __FILE__) {
+    http_response_code(404);
+    exit('Page not found.');
+}
+
+require_once dirname(__DIR__, 2) . '/includes/auth.php';
 requireAdmin();
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
+require_once dirname(__DIR__, 2) . '/config/database.php';
+require_once dirname(__DIR__, 2) . '/includes/functions.php';
 
 $db = getDatabaseConnection();
 $counts = [
@@ -13,12 +18,12 @@ $counts = [
     'customers' => (int)$db->query("SELECT COUNT(*) FROM users WHERE role = 'customer'")->fetchColumn(),
 ];
 $pageTitle = 'Administração';
-require __DIR__ . '/../includes/header.php';
+require dirname(__DIR__, 2) . '/includes/header.php';
 ?>
 <section class="section">
     <div class="container">
         <div class="admin-layout">
-            <?php $managementIsAdmin = true; require __DIR__ . '/../includes/management-sidebar.php'; ?>
+            <?php $managementIsAdmin = true; require dirname(__DIR__, 2) . '/includes/management-sidebar.php'; ?>
             <section class="admin-content">
                 <span class="eyebrow">Painel administrativo</span>
                 <h1>Visão geral</h1>
@@ -36,4 +41,4 @@ require __DIR__ . '/../includes/header.php';
         </div>
     </div>
 </section>
-<?php require __DIR__ . '/../includes/footer.php'; ?>
+<?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

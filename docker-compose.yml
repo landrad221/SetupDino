@@ -1,0 +1,41 @@
+services:
+  setupdino:
+    build: ./php
+    container_name: setupdino
+    volumes:
+      - ./:/var/www/html
+    env_file:
+      - .env
+    depends_on:
+      - mysql_database
+    ports:
+      - "9000:9000"
+    networks:
+      - sd-net
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - setupdino
+    networks:
+      - sd-net
+  mysql_database:
+    image: mysql:8.0
+    container_name: mysql
+    env_file: 
+      - .env
+    ports:
+      - "3306:3306"
+    networks:
+      - sd-net
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+  
+networks:
+  sd-net:
+    driver: bridge

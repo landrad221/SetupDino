@@ -11,3 +11,4 @@
 !/assets/images/products/README.md
 .DS_Store
 Thumbs.db
+mysql_data/

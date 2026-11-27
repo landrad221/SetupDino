@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . '/vendor/autoload.php';
-Dotenv\Dotenv::createImmutable(dirname(__DIR__))->safeLoad();
+//require_once dirname(__DIR__) . '/vendor/autoload.php';
+//Dotenv\Dotenv::createImmutable(dirname(__DIR__))->safeLoad();
 
 function getDatabaseConnection(): PDO {
     static $connection = null;
@@ -11,12 +11,12 @@ function getDatabaseConnection(): PDO {
         $value = $_ENV[$name] ?? $_SERVER[$name] ?? getenv($name);
         return is_string($value) && $value !== '' ? $value : $default;
     };
-    $host = $env('DB_HOST', 'localhost');
-    $port = $env('DB_PORT', '3306');
-    $database = $env('DB_NAME', 'SetupDino');
-    $username = $env('DB_USER', 'SetupDino_app');
-    $password = $env('DB_PASSWORD');
-    if ($password === '') throw new RuntimeException('DB_PASSWORD environment variable is missing.');
+    $host = $env('MYSQL_HOST', '127.0.0.1');
+    $port = $env('MYSQL_PORT', '3306');
+    $database = $env('MYSQL_DATABASE', 'SetupDino');
+    $username = $env('MYSQL_USER', 'setupdino_user');
+    $password = $env('MYSQL_PASSWORD');
+    if ($password === '') throw new RuntimeException('MYSQL_PASSWORD environment variable is missing.');
     $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',$host,$port,$database);
     return $connection = new PDO($dsn,$username,$password,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false]);
 }

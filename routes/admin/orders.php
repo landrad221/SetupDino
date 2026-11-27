@@ -1,9 +1,14 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/../includes/auth.php';
+if (realpath((string)($_SERVER['SCRIPT_FILENAME'] ?? '')) === __FILE__) {
+    http_response_code(404);
+    exit('Page not found.');
+}
+
+require_once dirname(__DIR__, 2) . '/includes/auth.php';
 requireAdmin();
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
+require_once dirname(__DIR__, 2) . '/config/database.php';
+require_once dirname(__DIR__, 2) . '/includes/functions.php';
 
 $db = getDatabaseConnection();
 $statuses = ['pending', 'paid', 'shipped', 'delivered', 'cancelled'];
@@ -29,10 +34,10 @@ $orders = $db->query(
      GROUP BY o.id, u.name, u.email ORDER BY o.created_at DESC'
 )->fetchAll();
 $pageTitle = 'Pedidos';
-require __DIR__ . '/../includes/header.php';
+require dirname(__DIR__, 2) . '/includes/header.php';
 ?>
 <section class="section"><div class="container"><div class="admin-layout">
-    <?php $managementIsAdmin = true; require __DIR__ . '/../includes/management-sidebar.php'; ?>
+    <?php $managementIsAdmin = true; require dirname(__DIR__, 2) . '/includes/management-sidebar.php'; ?>
     <section class="admin-content">
         <span class="eyebrow">Vendas da loja</span><h1>Pedidos</h1>
         <?php if (($_GET['saved'] ?? '') === '1'): ?><p class="notice">Status do pedido atualizado.</p><?php endif; ?>
@@ -48,4 +53,4 @@ require __DIR__ . '/../includes/header.php';
         <?php endif; ?>
     </section>
 </div></div></section>
-<?php require __DIR__ . '/../includes/footer.php'; ?>
+<?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

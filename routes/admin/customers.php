@@ -1,9 +1,14 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/../includes/auth.php';
+if (realpath((string)($_SERVER['SCRIPT_FILENAME'] ?? '')) === __FILE__) {
+    http_response_code(404);
+    exit('Page not found.');
+}
+
+require_once dirname(__DIR__, 2) . '/includes/auth.php';
 requireAdmin();
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
+require_once dirname(__DIR__, 2) . '/config/database.php';
+require_once dirname(__DIR__, 2) . '/includes/functions.php';
 
 $db = getDatabaseConnection();
 $error = '';
@@ -22,10 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 $users = $db->query('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC')->fetchAll();
 $pageTitle = 'Clientes e vendedores';
-require __DIR__ . '/../includes/header.php';
+require dirname(__DIR__, 2) . '/includes/header.php';
 ?>
 <section class="section"><div class="container"><div class="admin-layout">
-    <?php $managementIsAdmin = true; require __DIR__ . '/../includes/management-sidebar.php'; ?>
+    <?php $managementIsAdmin = true; require dirname(__DIR__, 2) . '/includes/management-sidebar.php'; ?>
     <section class="admin-content">
         <span class="eyebrow">Contas da loja</span><h1>Clientes e vendedores</h1>
         <p class="muted">Para habilitar um vendedor, crie primeiro uma conta normal na loja e altere o tipo de acesso aqui.</p>
@@ -42,4 +47,4 @@ require __DIR__ . '/../includes/header.php';
         <?php endif; ?>
     </section>
 </div></div></section>
-<?php require __DIR__ . '/../includes/footer.php'; ?>
+<?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

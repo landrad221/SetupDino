@@ -10,8 +10,9 @@ O fluxo básico de uma requisição é:
 Navegador
   │ solicita uma página ou envia um formulário
   ▼
-Apache + PHP
+Apache (`mod_rewrite`) + PHP
   ├─ carrega as configurações de .env
+  ├─ encaminha as páginas para `index.php` e `routes/RouteController.php`
   ├─ verifica sessão, perfil e token CSRF quando aplicável
   ├─ executa consultas preparadas pelo PDO
   └─ monta a resposta HTML
@@ -32,6 +33,7 @@ O JavaScript pode melhorar a experiência, mas dados enviados pelo navegador nã
 - MySQL 8 ou MariaDB compatível.
 - Extensões PHP: `pdo_mysql`, `fileinfo` e `mbstring`.
 - Composer e dependências do arquivo `composer.json` (`vlucas/phpdotenv`).
+- Apache com `mod_rewrite` e leitura de `.htaccess` habilitados ou servidor PHP embutido usando `index.php` como roteador.
 - Apache para hospedagem local via XAMPP ou um servidor web configurado para PHP.
 
 O carrinho também usa `localStorage` do navegador. Não há integração com gateway de pagamento.
@@ -98,7 +100,7 @@ Instale as dependências PHP com Composer, se necessário, e inicie o servidor l
 
 ```bash
 composer install
-php -S localhost:8000
+php -S localhost:8000 index.php
 ```
 
 Acesse `http://localhost:8000/`. O servidor embutido do PHP é somente para desenvolvimento e não deve ser publicado.
@@ -213,7 +215,6 @@ O esquema principal está em `database/schema.sql`; dados de exemplo estão em `
 
 ```text
 SetupDino/
-├── admin/             Páginas do painel administrativo
 ├── assets/
 │   ├── css/           Estilos da loja e dos painéis
 │   ├── images/        Imagens dos produtos
@@ -226,13 +227,17 @@ SetupDino/
 ├── docs/              Documentação detalhada
 ├── includes/          Autenticação, layout, formulários e gestão compartilhada
 ├── scripts/           Automação de instalação XAMPP
-├── seller/            Painel do vendedor
+├── routes/            Resolução de endereços e implementações das páginas
+│   ├── admin/         Páginas administrativas
+│   ├── seller/        Páginas do vendedor
+│   └── RouteController.php
 ├── src/               Consultas de produtos e serviços de carrinho/pedidos
+├── .htaccess          Encaminhamento das URLs para o ponto de entrada
 ├── .env               Configurações locais; não versionar
-└── index.php          Página inicial
+└── index.php          Ponto de entrada único
 ```
 
-Páginas PHP na raiz incluem o catálogo, detalhes do produto, cadastro, login, carrinho e checkout.
+As URLs públicas existentes são resolvidas em `routes/RouteController.php`; não é necessário criar um arquivo de entrada por endereço.
 
 ## 12. Segurança, configuração e limitações
 

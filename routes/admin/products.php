@@ -1,10 +1,15 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/../includes/auth.php';
+if (realpath((string)($_SERVER['SCRIPT_FILENAME'] ?? '')) === __FILE__) {
+    http_response_code(404);
+    exit('Page not found.');
+}
+
+require_once dirname(__DIR__, 2) . '/includes/auth.php';
 requireAdmin();
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/product-management.php';
+require_once dirname(__DIR__, 2) . '/config/database.php';
+require_once dirname(__DIR__, 2) . '/includes/functions.php';
+require_once dirname(__DIR__, 2) . '/includes/product-management.php';
 
 $db = getDatabaseConnection();
 $error = '';
@@ -32,12 +37,12 @@ $products = $db->query(
      LEFT JOIN users u ON u.id = p.seller_id ORDER BY p.id DESC'
 )->fetchAll();
 $pageTitle = 'Produtos';
-require __DIR__ . '/../includes/header.php';
+require dirname(__DIR__, 2) . '/includes/header.php';
 ?>
 <section class="section">
     <div class="container">
         <div class="admin-layout">
-            <?php $managementIsAdmin = true; require __DIR__ . '/../includes/management-sidebar.php'; ?>
+            <?php $managementIsAdmin = true; require dirname(__DIR__, 2) . '/includes/management-sidebar.php'; ?>
             <section class="admin-content">
                 <div class="section-heading"><div><span class="eyebrow">Catálogo</span><h1>Produtos</h1></div><a class="btn btn-primary" href="/admin/product-form.php">Adicionar produto</a></div>
                 <?php if (($_GET['saved'] ?? '') === '1'): ?><p class="notice">Produto salvo com sucesso.</p><?php elseif (($_GET['saved'] ?? '') === 'deleted'): ?><p class="notice">Produto excluído.</p><?php endif; ?>
@@ -60,4 +65,4 @@ require __DIR__ . '/../includes/header.php';
         </div>
     </div>
 </section>
-<?php require __DIR__ . '/../includes/footer.php'; ?>
+<?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

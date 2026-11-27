@@ -25,7 +25,7 @@ Consulte o [guia completo da aplicação](docs/APLICACAO.md) para conhecer a arq
 - PHP 8.1 ou superior, com as extensões `pdo_mysql`, `fileinfo` e `mbstring`.
 - MySQL 8 ou MariaDB compatível.
 - Composer para instalar `vlucas/phpdotenv`, se `vendor/` ainda não existir.
-- XAMPP no Windows ou servidor PHP configurado para desenvolvimento local.
+- XAMPP com `mod_rewrite` e `.htaccess` habilitados ou o servidor PHP embutido para desenvolvimento local.
 
 ## Instalação no Windows com XAMPP
 
@@ -86,7 +86,7 @@ Instale as dependências, se necessário, e inicie o servidor local:
 
 ```bash
 composer install
-php -S localhost:8000
+php -S localhost:8000 index.php
 ```
 
 Acesse `http://localhost:8000/`. O servidor embutido do PHP é somente para desenvolvimento e não deve ser usado publicamente.
@@ -128,16 +128,15 @@ Para habilitar um vendedor, ele precisa ter uma conta cadastrada. Um administrad
 
 ## Estrutura do projeto
 
-- `admin/`: administração de produtos, categorias, contas e pedidos.
-- `seller/`: área do vendedor e gestão dos próprios produtos.
 - `assets/`: estilos, JavaScript e imagens.
 - `config/`: conexão PDO e configuração do ambiente.
 - `database/`: esquema, dados de demonstração e migrações.
 - `docs/`: documentação detalhada em português.
 - `includes/`: autenticação, layout, validação e lógica compartilhada.
+- `routes/`: `RouteController.php` mapeia todos os endereços públicos para as implementações das páginas.
 - `scripts/`: automação de instalação para XAMPP.
 - `src/`: repositório de produtos e serviços de carrinho/pedidos.
-- `index.php` e outros arquivos PHP da raiz: páginas da loja.
+- `index.php` é o único ponto de entrada; `.htaccess` e o servidor embutido encaminham os endereços para ele.
 
 ## Segurança e limitações
 
